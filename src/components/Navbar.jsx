@@ -24,6 +24,7 @@ const handleLogout = async () => {
 
     // Redirect to login page
     dispatch(loginRequest(null))
+    localStorage.removeItem("user")
     navigate("/login");
   } catch (err) {
     console.error("Logout Error:", err);
@@ -34,16 +35,19 @@ const handleLogout = async () => {
   return (
     <div className="navbar bg-base-300">
     <div className="flex-1">
-      <a className="btn btn-ghost text-xl">Dev Tinder</a>
+    <Link to={"/"}  className="justify-between">
+     Dev Tinder
+      </Link >
     </div>
     <div className="flex-none gap-2">
     {user && <span className="text-lg font-semibold">Welcome, {user.firstName}!</span>}  
       <div className="dropdown dropdown-end mx-5">
         <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-          <div className="w-10 rounded-full">
+          <div className="w-11 h-11 rounded-full overflow-hidden">
             <img
               alt="Tailwind CSS Navbar component"
-              src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
+              className='w-full h-full object-cover'
+              src={user?.photoUrl} />
           </div>
         </div>
         <ul
@@ -54,7 +58,12 @@ const handleLogout = async () => {
               Profile
             </Link >
           </li>
-          <li><a>Settings</a></li>
+          <li>      <Link to={"/connections"}  className="justify-between">
+              Connections
+            </Link ></li>
+            <li>      <Link to={"/requests"}  className="justify-between">
+              Requests
+            </Link ></li>
         <button className='flex justify-start ml-3' onClick={handleLogout}>Logout</button>
         </ul>
       </div>

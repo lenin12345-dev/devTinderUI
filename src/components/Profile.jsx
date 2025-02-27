@@ -1,29 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { useSelector,useDispatch } from "react-redux";
 import { loginRequest } from "../utils/userSlice";
 
 const Profile = () => {
   const { user } = useSelector((state) => state.user);
-  const [editUser, setEditUser] = useState({
-    firstName: user?.firstName || "",
-    lastName: user?.lastName || "",
-    age: user?.age || "",
-    gender: user?.gender || "",
-    photoUrl: user?.photoUrl || "",
-    skills: user?.skills || "",
-  });
   const dispatch = useDispatch()
 
-  useEffect(() => {
-    setEditUser({
-      firstName: user?.firstName || "",
-      lastName: user?.lastName || "",
-      age: user?.age || "",
-      gender: user?.gender || "",
-      photoUrl: user?.photoUrl || "",
-      skills: user?.skills || "",
-    });
-  }, [user]);
+
+  const initialUserData = useMemo(()=>{
+      return{
+        firstName: user?.firstName || "",
+        lastName: user?.lastName || "",
+        age: user?.age || "",
+        gender: user?.gender || "",
+        photoUrl: user?.photoUrl || "",
+        skills: user?.skills || "",
+        
+      }
+  },[user])
+  const [editUser, setEditUser] = useState(initialUserData);
+
 
   const handleChange = (e) => {
     setEditUser({ ...editUser, [e.target.name]: e.target.value });
@@ -41,9 +37,10 @@ const Profile = () => {
       });
       const data = await res.json();
       dispatch(loginRequest(data?.data))
+      alert("sumbitted successfully")
 
     } catch (error) {
-
+     console.error(error)
     }
   };
 

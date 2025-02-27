@@ -23,7 +23,6 @@ const Login = () => {
         credentials:"include",
       });
       const data = await response.json();
-      console.log('data',data);
       
       dispatch(loginRequest(data?.data));
       navigate("/");
