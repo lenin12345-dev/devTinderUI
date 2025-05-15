@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addConnection } from "../utils/connectionSlice";
-import { store } from "../utils/store";
 
 const Connections = () => {
   const dispatch = useDispatch();
@@ -16,11 +15,9 @@ const Connections = () => {
       credentials: "include",
     });
     const data = await res.json();
-  console.log("connection", connection);
 
     dispatch(addConnection(data?.data));
   };
-  console.log("connection", connection);
 
   useEffect(() => {
     getConnection();

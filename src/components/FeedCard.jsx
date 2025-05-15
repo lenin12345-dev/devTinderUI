@@ -17,7 +17,6 @@ const FeedCard = ({ user }) => {
 
         credentials: "include",
       });
-      console.log("id",id)
       dispatch(removeFeedUser(id))
     } catch (error) {
       console.error(error);
