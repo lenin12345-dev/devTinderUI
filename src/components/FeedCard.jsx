@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { removeFeedUser } from "../utils/feedSlice";
+import { HeartIcon, XCircleIcon } from "@heroicons/react/24/solid";
 
 const FeedCard = ({ user }) => {
   const { firstName, lastName, photoUrl, age, _id } = user;
@@ -19,7 +20,7 @@ const FeedCard = ({ user }) => {
         body: "",
       });
       setActionTaken(status);
-      setTimeout(() => dispatch(removeFeedUser(id)), 500); // Small delay for UX
+      setTimeout(() => dispatch(removeFeedUser(id)), 500);
     } catch (error) {
       console.error("Error sending request:", error);
     } finally {
@@ -28,39 +29,43 @@ const FeedCard = ({ user }) => {
   };
 
   return (
-    <div className="card bg-base-100 w-96 shadow-xl transition-transform hover:scale-105 duration-300">
-      <figure className="px-10 pt-10">
+    <div className="bg-white rounded-2xl shadow-lg overflow-hidden w-80 sm:w-96 hover:shadow-2xl transition-shadow duration-300">
+      <div className="relative">
         <img
           src={photoUrl || "/default-avatar.png"}
           alt={`${firstName} ${lastName}`}
-          className="rounded-xl h-80 w-80 object-cover"
+          className="w-full h-80 object-cover"
         />
-      </figure>
+        <div className="absolute bottom-0 w-full h-24 bg-gradient-to-t from-black/70 to-transparent"></div>
+        <div className="absolute bottom-4 left-4 text-white">
+          <h2 className="text-2xl font-bold">
+            {firstName} {lastName}
+          </h2>
+          <p className="text-sm">Age: {age}</p>
+        </div>
+      </div>
 
-      <div className="card-body items-center text-center">
-        <h2 className="card-title text-xl font-semibold">
-          {firstName} {lastName}
-        </h2>
-        <p className="text-gray-600 text-sm">Age: {age}</p>
-
+      <div className="p-4">
         {actionTaken ? (
-          <div className="mt-4 text-green-500 font-medium">
-            You marked as {actionTaken}.
+          <div className="text-center text-green-600 font-medium">
+            You marked as <strong>{actionTaken}</strong>.
           </div>
         ) : (
-          <div className="card-actions mt-4 flex gap-4">
+          <div className="flex justify-between gap-4 mt-2">
             <button
               onClick={() => handleInterest("interested", _id)}
-              className="btn btn-primary"
+              className="flex-1 flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full transition disabled:opacity-50"
               disabled={isLoading}
             >
+              <HeartIcon className="w-5 h-5" />
               {isLoading ? "Processing..." : "Interested"}
             </button>
             <button
               onClick={() => handleInterest("ignored", _id)}
-              className="btn btn-outline btn-error"
+              className="flex-1 flex items-center justify-center gap-2 border border-red-500 text-red-500 hover:bg-red-50 px-4 py-2 rounded-full transition disabled:opacity-50"
               disabled={isLoading}
             >
+              <XCircleIcon className="w-5 h-5" />
               {isLoading ? "Processing..." : "Ignore"}
             </button>
           </div>
