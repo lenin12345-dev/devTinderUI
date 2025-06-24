@@ -8,7 +8,7 @@ const FeedCard = ({ user }) => {
   const dispatch = useDispatch();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [actionTaken, setActionTaken] = useState(""); // 'interested' or 'ignored'
+  const [actionTaken, setActionTaken] = useState(""); 
 
   const handleInterest = async (status, id) => {
     setIsLoading(true);
