@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useSpring, animated as a } from "react-spring";
+import { useGesture } from "@use-gesture/react";
 import { useDispatch } from "react-redux";
 import { removeFeedUser } from "../utils/feedSlice";
 import { HeartIcon, XCircleIcon } from "@heroicons/react/24/solid";
@@ -6,12 +8,32 @@ import { HeartIcon, XCircleIcon } from "@heroicons/react/24/solid";
 const FeedCard = ({ user }) => {
   const { firstName, lastName, photoUrl, age, _id } = user;
   const dispatch = useDispatch();
+  const [gone, setGone] = useState(false);
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [actionTaken, setActionTaken] = useState(""); 
+  const [{ x, rotate }, api] = useSpring(() => ({
+    x: 0,
+    rotate: 0,
+    config: { tension: 300, friction: 30 },
+  }));
+
+  const bind = useGesture({
+    onDrag: ({ down, movement: [mx], velocity, direction: [xDir] }) => {
+      const trigger = velocity > 0.2;
+      const dir = xDir < 0 ? -1 : 1;
+      if (!down && trigger) {
+        api.start({ x: dir * 1000, rotate: dir * 20 });
+        setGone(true);
+        setTimeout(() => {
+          const status = dir === 1 ? "interested" : "ignored";
+          handleInterest(status, _id);
+        }, 300);
+      } else {
+        api.start({ x: down ? mx : 0, rotate: down ? mx / 20 : 0 });
+      }
+    },
+  });
 
   const handleInterest = async (status, id) => {
-    setIsLoading(true);
     try {
       await fetch(`http://localhost:3000/request/send/${status}/${id}`, {
         method: "POST",
@@ -19,17 +41,24 @@ const FeedCard = ({ user }) => {
         credentials: "include",
         body: "",
       });
-      setActionTaken(status);
-      setTimeout(() => dispatch(removeFeedUser(id)), 500);
+      dispatch(removeFeedUser(id));
     } catch (error) {
       console.error("Error sending request:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
+  if (gone) return null;
+
   return (
-    <div className="bg-white rounded-2xl shadow-lg overflow-hidden w-80 sm:w-96 hover:shadow-2xl transition-shadow duration-300">
+    <a.div
+      {...bind()}
+      style={{
+        x,
+        rotate,
+        touchAction: "none",
+      }}
+      className="bg-white rounded-2xl shadow-lg overflow-hidden w-80 sm:w-96 cursor-grab active:cursor-grabbing select-none"
+    >
       <div className="relative">
         <img
           src={photoUrl || "/default-avatar.png"}
@@ -44,34 +73,7 @@ const FeedCard = ({ user }) => {
           <p className="text-sm">Age: {age}</p>
         </div>
       </div>
-
-      <div className="p-4">
-        {actionTaken ? (
-          <div className="text-center text-green-600 font-medium">
-            You marked as <strong>{actionTaken}</strong>.
-          </div>
-        ) : (
-          <div className="flex justify-between gap-4 mt-2">
-            <button
-              onClick={() => handleInterest("interested", _id)}
-              className="flex-1 flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full transition disabled:opacity-50"
-              disabled={isLoading}
-            >
-              <HeartIcon className="w-5 h-5" />
-              {isLoading ? "Processing..." : "Interested"}
-            </button>
-            <button
-              onClick={() => handleInterest("ignored", _id)}
-              className="flex-1 flex items-center justify-center gap-2 border border-red-500 text-red-500 hover:bg-red-50 px-4 py-2 rounded-full transition disabled:opacity-50"
-              disabled={isLoading}
-            >
-              <XCircleIcon className="w-5 h-5" />
-              {isLoading ? "Processing..." : "Ignore"}
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
+    </a.div>
   );
 };
 
