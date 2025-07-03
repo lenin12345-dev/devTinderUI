@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { loginRequest } from "../utils/userSlice";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Toaster, toast } from "react-hot-toast";
 
 const Profile = () => {
   const { user } = useSelector((state) => state.user);
@@ -14,8 +19,6 @@ const Profile = () => {
     photoUrl: "",
     skills: "",
   });
-
-  const [toast, setToast] = useState({ show: false, message: "", type: "success" });
 
   useEffect(() => {
     if (user) {
@@ -32,11 +35,6 @@ const Profile = () => {
 
   const handleChange = (e) => {
     setEditUser({ ...editUser, [e.target.name]: e.target.value });
-  };
-
-  const showToast = (message, type = "success") => {
-    setToast({ show: true, message, type });
-    setTimeout(() => setToast({ show: false, message: "", type: "success" }), 3000);
   };
 
   const handleSubmit = async () => {
@@ -57,47 +55,59 @@ const Profile = () => {
       }
 
       dispatch(loginRequest(data?.data));
-      showToast("Profile updated successfully", "success");
+      toast.success("Profile updated successfully");
     } catch (error) {
-      showToast(error.message || "Failed to update", "error");
+      toast.error(error.message || "Failed to update");
     }
   };
 
   return (
-    <div className="flex justify-center mt-10">
-      <div className="card bg-base-100 w-96 shadow-xl">
-        <figure>
-          <img src={editUser.photoUrl || "https://via.placeholder.com/150"} alt="User" />
-        </figure>
-        <div className="card-body">
-          {["firstName", "lastName", "age", "gender", "photoUrl", "skills"].map((field) => (
-            <label key={field} className="form-control w-full max-w-xs my-2">
-              <input
-                type="text"
-                placeholder={field}
-                name={field}
-                value={editUser[field]}
-                onChange={handleChange}
-                className="input input-bordered w-full max-w-xs"
-              />
-            </label>
-          ))}
-          <div className="card-actions justify-center">
-            <button onClick={handleSubmit} className="btn btn-primary">
-              Submit
-            </button>
-          </div>
-        </div>
-      </div>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 p-4">
+      <Card className="w-full max-w-md rounded-2xl shadow-lg">
+        <CardContent className="flex flex-col items-center p-6 space-y-4">
+          <img
+            src={editUser.photoUrl || "https://via.placeholder.com/150"}
+            alt="User"
+            className="w-32 h-32 rounded-full object-cover border-4 border-primary shadow-sm"
+          />
+          <h2 className="text-xl font-semibold text-center">Edit Your Profile</h2>
 
-      {/* DaisyUI Toast */}
-      {toast.show && (
-        <div className="toast toast-bottom toast-center z-50">
-          <div className={`alert ${toast.type === "success" ? "alert-success" : "alert-error"}`}>
-            <span>{toast.message}</span>
-          </div>
-        </div>
-      )}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit();
+            }}
+            className="w-full space-y-3"
+          >
+            {[
+              { name: "firstName", label: "First Name" },
+              { name: "lastName", label: "Last Name" },
+              { name: "age", label: "Age" },
+              { name: "gender", label: "Gender" },
+              { name: "photoUrl", label: "Photo URL" },
+              { name: "skills", label: "Skills" },
+            ].map((field) => (
+              <div key={field.name} className="flex flex-col space-y-1">
+                <Label htmlFor={field.name}>{field.label}</Label>
+                <Input
+                  id={field.name}
+                  name={field.name}
+                  value={editUser[field.name]}
+                  onChange={handleChange}
+                  placeholder={field.label}
+                  className="w-full"
+                />
+              </div>
+            ))}
+
+            <Button type="submit" className="w-full mt-4">
+              Save Profile
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Toaster position="bottom-center" />
     </div>
   );
 };
