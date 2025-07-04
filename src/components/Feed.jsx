@@ -6,7 +6,7 @@ import { addFeed } from "../utils/feedSlice";
 const Feed = () => {
 
     const dispatch = useDispatch()
-    const {feed} = useSelector((store)=>store.feed)
+    const {feed} = useSelector((store)=>store.feed || [])
 
  const getFeedUser=async()=>{
     try {
@@ -27,14 +27,15 @@ const Feed = () => {
         
     }
  }
+ console.log("feed",feed)
    useEffect(()=>{
     getFeedUser()
    },[])
-  if (feed.length==0) return <div className="flex items-center justify-center h-screen font-bold text-5xl">No data Found</div>
+  if (feed?.length==0) return <div className="flex items-center justify-center h-screen font-bold text-5xl">No data Found</div>
 
   return (
     <div className="flex justify-center">
-       {feed.length>0&&<FeedCard user = {feed[0]}/>}
+       {feed && feed.length>0&&<FeedCard user = {feed[0]}/>}
     </div>
   );
 };
