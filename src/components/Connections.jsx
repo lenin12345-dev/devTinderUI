@@ -1,59 +1,86 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addConnection } from "../utils/connectionSlice";
 
 const Connections = () => {
   const dispatch = useDispatch();
   const { connection } = useSelector((store) => store.connection);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const getConnection = async () => {
-    const res = await fetch("http://localhost:3000/user/connections", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    });
-    const data = await res.json();
+  const getConnection = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError("");
 
-    dispatch(addConnection(data?.data));
-  };
+      const res = await fetch("http://localhost:3000/user/connections", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch connections.");
+      }
+
+      const data = await res.json();
+      dispatch(addConnection(data?.data || []));
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load connections. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, [dispatch]);
 
   useEffect(() => {
     getConnection();
-  },[]);
+  }, [getConnection]);
+
   return (
-    <div className="flex flex-col justify-center items-center m-8 py-4">
-  
-    <div className="flex-col">
-    {connection?.length > 0?<h2 className="card-title mb-8">All Connections</h2>:<h2 className="card-title mb-8">No Connections</h2>}
-      {connection?.length > 0 &&
-        connection.map((each) => (
+    <div
+      className="flex flex-col items-center m-8 py-4"
+      aria-busy={loading}
+      aria-live="polite"
+    >
+      <h2 className="card-title mb-8">
+        {loading
+          ? "Loading Connections..."
+          : error
+          ? "Error"
+          : connection?.length > 0
+          ? "All Connections"
+          : "No Connections"}
+      </h2>
+
+      {error && (
+        <p className="text-red-500 mb-4 text-center">{error}</p>
+      )}
+
+      <div className="flex flex-col items-center">
+        {connection?.map((each) => (
           <div
             key={each._id}
-            className="card flex-row justify-center items-center bg-primary text-primary-content w-96 m-5"
+            className="card flex-row justify-center items-center bg-primary text-primary-content w-96 m-5 shadow-lg"
           >
             <figure className="p-5">
               <img
-                src={each?.photoUrl}
-                alt="Shoes"
-                className="rounded-full h-28 w-28"
+                src={each?.photoUrl || "/default-avatar.png"}
+                alt={`${each?.firstName || "User"} ${each?.lastName || ""}`}
+                className="rounded-full h-28 w-28 object-cover"
               />
             </figure>
             <div className="card-body flex-col justify-between items-center">
-            
-                <h2 className="card-title mb-5">
-                  {each?.firstName}{" "}
-                  {each?.lastName}
-                </h2>
-           
-
-             
+              <h2 className="card-title mb-5 text-center">
+                {each?.firstName} {each?.lastName}
+              </h2>
             </div>
           </div>
         ))}
+      </div>
     </div>
-  </div>
   );
 };
 
