@@ -13,7 +13,7 @@ const Login = () => {
 
   const handleChange = (event) => {
     setLoginObj({ ...loginObj, [event.target.name]: event.target.value });
-    setErrorMsg(""); // clear error on input change
+    setErrorMsg(""); 
   };
 
   const handleSubmit = async () => {

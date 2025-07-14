@@ -26,7 +26,7 @@ const Body = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
-      {/* Grow will push the footer to the bottom */}
+  
       <div className="flex-grow">
         <Outlet />
       </div>
