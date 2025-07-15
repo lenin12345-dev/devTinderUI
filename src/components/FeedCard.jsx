@@ -1,79 +1,66 @@
 import React, { useState } from "react";
-import { useSpring, animated as a } from "react-spring";
-import { useGesture } from "@use-gesture/react";
 import { useDispatch } from "react-redux";
 import { removeFeedUser } from "../utils/feedSlice";
-import { HeartIcon, XCircleIcon } from "@heroicons/react/24/solid";
+import { API_BASE_URL } from "../config/api";
+import toast from "react-hot-toast";
 
 const FeedCard = ({ user }) => {
   const { firstName, lastName, photoUrl, age, _id } = user;
   const dispatch = useDispatch();
-  const [gone, setGone] = useState(false);
-
-  const [{ x, rotate }, api] = useSpring(() => ({
-    x: 0,
-    rotate: 0,
-    config: { tension: 300, friction: 30 },
-  }));
-
-  const bind = useGesture({
-    onDrag: ({ down, movement: [mx], velocity, direction: [xDir] }) => {
-      const trigger = velocity > 0.2;
-      const dir = xDir < 0 ? -1 : 1;
-      if (!down && trigger) {
-        api.start({ x: dir * 1000, rotate: dir * 20 });
-        setGone(true);
-        setTimeout(() => {
-          const status = dir === 1 ? "interested" : "ignored";
-          handleInterest(status, _id);
-        }, 300);
-      } else {
-        api.start({ x: down ? mx : 0, rotate: down ? mx / 20 : 0 });
-      }
-    },
-  });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleInterest = async (status, id) => {
+    setIsLoading(true);
     try {
-      await fetch(`http://localhost:3000/request/send/${status}/${id}`, {
+      await fetch(`${API_BASE_URL}/request/send/${status}/${id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: "",
       });
-      dispatch(removeFeedUser(id));
+      toast.success(`Marked as ${status}`);
+      setTimeout(() => dispatch(removeFeedUser(id)), 500); // Small delay for UX
     } catch (error) {
       console.error("Error sending request:", error);
+      toast.error("Action failed, please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  if (gone) return null;
-
   return (
-    <a.div
-      {...bind()}
-      style={{
-        x,
-        rotate,
-        touchAction: "none",
-      }}
-      className="bg-white rounded-2xl shadow-lg overflow-hidden w-80 sm:w-96 cursor-grab active:cursor-grabbing select-none"
-    >
-      <div className="relative">
+    <div className="card bg-base-100 w-80 sm:w-96 shadow-xl transition-transform hover:scale-105 duration-300">
+      <figure className="px-6 pt-6">
         <img
           src={photoUrl || "/default-avatar.png"}
           alt={`${firstName} ${lastName}`}
-          className="w-full h-80 object-cover"
+          className="rounded-xl h-72 w-full object-cover"
         />
-        <div className="absolute bottom-0 w-full h-24 bg-gradient-to-t from-black/70 to-transparent"></div>
-        <div className="absolute bottom-4 left-4 text-white">
-          <h2 className="text-2xl font-bold">
-            {firstName} {lastName}
-          </h2>
-          <p className="text-sm">Age: {age}</p>
+      </figure>
+
+      <div className="card-body items-center text-center">
+        <h2 className="card-title text-lg font-semibold">
+          {firstName} {lastName}
+        </h2>
+        <p className="text-gray-600 text-sm">Age: {age}</p>
+
+        <div className="card-actions mt-4 flex gap-4">
+          <button
+            onClick={() => handleInterest("interested", _id)}
+            className="btn btn-primary"
+            disabled={isLoading}
+          >
+            {isLoading ? "Processing..." : "Interested"}
+          </button>
+          <button
+            onClick={() => handleInterest("ignored", _id)}
+            className="btn btn-outline btn-error"
+            disabled={isLoading}
+          >
+            {isLoading ? "Processing..." : "Ignore"}
+          </button>
         </div>
       </div>
-    </a.div>
+    </div>
   );
 };
 

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { API_BASE_URL } from "../config/api";
+
 
 import { addRequests,removeRequests } from "../utils/requestSlice";
 
@@ -8,7 +10,7 @@ const Requests = () => {
   const { requests } = useSelector((store) => store.requests);
 
   const getRequests = async () => {
-    const res = await fetch("http://localhost:3000/user/requests/received", {
+    const res = await fetch(`${API_BASE_URL}/user/requests/received`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

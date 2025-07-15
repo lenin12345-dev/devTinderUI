@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { loginRequest } from "../utils/userSlice";
-// import { Card } from "@/components/ui/card";
-
-// import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input";
-// import { Label } from "@/components/ui/label";
-import { Toaster, toast } from "react-hot-toast";
+import { toast } from "react-hot-toast";
+import { API_BASE_URL } from "../config/api";
 
 const Profile = () => {
   const { user } = useSelector((state) => state.user);
@@ -40,11 +36,9 @@ const Profile = () => {
 
   const handleSubmit = async () => {
     try {
-      const res = await fetch("http://localhost:3000/profile/edit", {
+      const res = await fetch(`${API_BASE_URL}/profile/edit`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editUser),
         credentials: "include",
       });
@@ -63,52 +57,56 @@ const Profile = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 p-4">
-      <Card className="w-full max-w-md rounded-2xl shadow-lg">
-        <CardContent className="flex flex-col items-center p-6 space-y-4">
+    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+      <div className="bg-white rounded-2xl shadow-lg w-full max-w-md p-6">
+        <div className="flex flex-col items-center">
           <img
             src={editUser.photoUrl || "https://via.placeholder.com/150"}
             alt="User"
-            className="w-32 h-32 rounded-full object-cover border-4 border-primary shadow-sm"
+            className="w-32 h-32 rounded-full object-cover border-4 border-primary shadow-sm mb-4"
           />
-          <h2 className="text-xl font-semibold text-center">Edit Your Profile</h2>
+          <h2 className="text-xl font-semibold mb-4">Edit Your Profile</h2>
+        </div>
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSubmit();
-            }}
-            className="w-full space-y-3"
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+          className="flex flex-col space-y-3"
+        >
+          {[
+            { name: "firstName", label: "First Name", type: "text" },
+            { name: "lastName", label: "Last Name", type: "text" },
+            { name: "age", label: "Age", type: "number" },
+            { name: "gender", label: "Gender", type: "text" },
+            { name: "photoUrl", label: "Photo URL", type: "text" },
+            { name: "skills", label: "Skills (comma separated)", type: "text" },
+          ].map((field) => (
+            <div key={field.name} className="flex flex-col space-y-1">
+              <label htmlFor={field.name} className="font-medium text-sm">
+                {field.label}
+              </label>
+              <input
+                id={field.name}
+                name={field.name}
+                type={field.type}
+                value={editUser[field.name]}
+                onChange={handleChange}
+                placeholder={field.label}
+                className="input input-bordered w-full"
+              />
+            </div>
+          ))}
+
+          <button
+            type="submit"
+            className="btn btn-primary w-full mt-4"
           >
-            {[
-              { name: "firstName", label: "First Name" },
-              { name: "lastName", label: "Last Name" },
-              { name: "age", label: "Age" },
-              { name: "gender", label: "Gender" },
-              { name: "photoUrl", label: "Photo URL" },
-              { name: "skills", label: "Skills" },
-            ].map((field) => (
-              <div key={field.name} className="flex flex-col space-y-1">
-                <Label htmlFor={field.name}>{field.label}</Label>
-                <Input
-                  id={field.name}
-                  name={field.name}
-                  value={editUser[field.name]}
-                  onChange={handleChange}
-                  placeholder={field.label}
-                  className="w-full"
-                />
-              </div>
-            ))}
-
-            <Button type="submit" className="w-full mt-4">
-              Save Profile
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      <Toaster position="bottom-center" />
+            Save Profile
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

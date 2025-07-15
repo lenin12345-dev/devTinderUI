@@ -2,6 +2,8 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { loginRequest } from '../utils/userSlice';
+import { API_BASE_URL } from "../config/api";
+
 
 const Navbar = () => {
   const { user } = useSelector((state) => state.user);
@@ -10,7 +12,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("http://localhost:3000/logout", {
+      const response = await fetch(`${API_BASE_URL}/logout`, {
         method: "POST",
         credentials: "include",
       });
@@ -21,7 +23,7 @@ const Navbar = () => {
 
       dispatch(loginRequest(null));
       localStorage.removeItem("user");
-      navigate("/login");
+      navigate("/auth");
     } catch (err) {
       console.error("Logout Error:", err);
     }

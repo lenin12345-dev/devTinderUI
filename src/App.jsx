@@ -1,21 +1,24 @@
 import { useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Body from "./Body.jsx";
-import Login from "../src/components/Login.jsx";
+import Authpage from "../src/components/Authpage.jsx";
+
 import Profile from "../src/components/Profile.jsx";
 import Feed from "../src/components/Feed.jsx";
 import Connections from "../src/components/Connections.jsx";
 import Requests from "../src/components/Requests.jsx";
 import { useSelector } from "react-redux";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   const ProtectedRoute = ({ element }) => {
     const { user } = useSelector((state) => state.user);
-    return user ? element : <Navigate to="/login" replace />;
+    return user ? element : <Navigate to="/auth" replace />;
   };
 
   return (
     <BrowserRouter>
+       <Toaster position="top-center" />
       <Routes>
         <Route path="/" element={<Body />}>
           <Route
@@ -36,7 +39,9 @@ function App() {
             element={<ProtectedRoute element={<Profile />} />}
           />
         </Route>
-        <Route path="/login" element={<Login/>}/>
+        <Route path="/auth" element={<Authpage />} />
+
+
       </Routes>
     </BrowserRouter>
   );

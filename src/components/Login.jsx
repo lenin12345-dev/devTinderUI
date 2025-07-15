@@ -2,35 +2,36 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { loginRequest } from "../utils/userSlice";
+import toast from "react-hot-toast";
+import { API_BASE_URL } from "../config/api";
+
+
 
 const Login = () => {
   const [loginObj, setLoginObj] = useState({ emailId: "", password: "" });
-  const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleChange = (event) => {
     setLoginObj({ ...loginObj, [event.target.name]: event.target.value });
-    setErrorMsg(""); 
   };
 
   const handleSubmit = async () => {
     const { emailId, password } = loginObj;
 
     if (!emailId || !password) {
-      setErrorMsg("Please enter both email and password.");
+      toast.error("Please enter both email and password.");
+      setErrorMsg("Please enter both email and password.")
       return;
     }
 
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/login", {
+      const response = await fetch(`${API_BASE_URL}/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(loginObj),
       });
@@ -42,9 +43,10 @@ const Login = () => {
       }
 
       dispatch(loginRequest(data.data));
+      toast.success("Login successful!");
       navigate("/");
     } catch (error) {
-      setErrorMsg(error.message || "Login failed. Please try again.");
+      toast.error(error.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addConnection } from "../utils/connectionSlice";
+import { API_BASE_URL } from "../config/api";
 
 const Connections = () => {
   const dispatch = useDispatch();
@@ -13,7 +14,7 @@ const Connections = () => {
       setLoading(true);
       setError("");
 
-      const res = await fetch("http://localhost:3000/user/connections", {
+      const res = await fetch(`${API_BASE_URL}/user/connections`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
