@@ -12,10 +12,6 @@ const SignUp = () => {
     lastName: "",
     emailId: "",
     password: "",
-    age: "",
-    skills: "",
-    gender: "",
-    photoUrl: "",
   });
   const dispatch = useDispatch();
   const [errorMsg, setErrorMsg] = useState("");
@@ -50,7 +46,7 @@ const SignUp = () => {
       }
        dispatch(loginRequest(data.data));
       toast.success("Signup successful!");
-      navigate("/");
+      navigate("/profile");
     } catch (error) {
       setErrorMsg(error.message || "Signup failed. Please try again.");
     } finally {
@@ -69,10 +65,6 @@ const SignUp = () => {
             { name: "lastName", placeholder: "Last Name", type: "text" },
             { name: "emailId", placeholder: "Email", type: "email" },
             { name: "password", placeholder: "Password", type: "password" },
-            { name: "age", placeholder: "Age", type: "number" },
-            { name: "skills", placeholder: "Skills (comma separated)", type: "text" },
-            { name: "gender", placeholder: "Gender", type: "text" },
-            { name: "photoUrl", placeholder: "Photo URL", type: "text" },
           ].map((field) => (
             <label key={field.name} className="form-control w-full mb-3">
               <input

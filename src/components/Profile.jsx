@@ -28,6 +28,16 @@ const Profile = () => {
         skills: user.skills || "",
       });
     }
+    return () => {
+      setEditUser({
+        firstName: "",
+        lastName: "",
+        age: "",
+        gender: "",
+        photoUrl: "",
+        skills: "",
+      });
+    };
   }, [user]);
 
   const handleChange = (e) => {
@@ -36,6 +46,27 @@ const Profile = () => {
 
   const handleSubmit = async () => {
     try {
+      const { gender, photoUrl, age } = editUser;
+
+      // Gender validation
+      const allowedGenders = ["male", "female"];
+      if (gender && !allowedGenders.includes(gender.toLowerCase())) {
+        toast.error("Gender must be 'male', 'female' ");
+        return;
+      }
+  
+      // Photo URL validation (basic)
+      if (!photoUrl) {
+        toast.error("Add a profile pic");
+        return;
+      }
+  
+      // Age validation
+      const ageNum = Number(age);
+      if (age && (!Number.isInteger(ageNum) || ageNum < 13 || ageNum > 120)) {
+        toast.error("Age must be a valid number between 13 and 120.");
+        return;
+      }
       const res = await fetch(`${API_BASE_URL}/profile/edit`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -99,10 +130,7 @@ const Profile = () => {
             </div>
           ))}
 
-          <button
-            type="submit"
-            className="btn btn-primary w-full mt-4"
-          >
+          <button type="submit" className="btn btn-primary w-full mt-4">
             Save Profile
           </button>
         </form>

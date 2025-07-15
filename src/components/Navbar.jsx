@@ -33,7 +33,7 @@ const Navbar = () => {
     <div className="navbar bg-base-300 shadow-md">
       <div className="flex-1">
         <Link to="/" className="text-xl font-bold hover:text-primary transition-colors">
-          Dev Tinder
+          Dev MeetUp
         </Link>
       </div>
 
