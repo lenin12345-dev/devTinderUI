@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { API_BASE_URL } from "../config/api";
 
-
-import { addRequests,removeRequests } from "../utils/requestSlice";
+import { addRequests, removeRequests } from "../utils/requestSlice";
 
 const Requests = () => {
   const dispatch = useDispatch();
@@ -23,28 +22,46 @@ const Requests = () => {
   };
   const handleAccept = async (status, request) => {
     try {
+      const { fromUserId, _id } = request;
+      await fetch(
+        `http://localhost:3000/request/review/${status}/${fromUserId?._id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: "",
 
-      const {fromUserId,_id} = request
-      await fetch(`http://localhost:3000/request/review/${status}/${fromUserId?._id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body:"",
-
-        credentials: "include",
-      });
+          credentials: "include",
+        }
+      );
       dispatch(removeRequests(_id));
-    
     } catch (error) {
       console.error(error);
     }
   };
-   
+  const getDaysAgo = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now - date);
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "1 day ago";
+    return `${diffDays} days ago`;
+  };
+
   useEffect(() => {
-    if (requests.length==0) getRequests();
+    if (requests.length == 0) getRequests();
   }, []);
-  if (requests.length==0) return <div className="flex items-center justify-center h-screen text-center font-bold text-3xl">No data Found</div>
+  console.log(requests);
+
+  if (requests.length == 0)
+    return (
+      <div className="flex items-center justify-center h-screen text-center font-bold text-3xl">
+        No data Found
+      </div>
+    );
   return (
     <div className="flex flex-col justify-center items-center m-8 py-4">
       <h2 className="card-title mb-8">All Requests</h2>
@@ -64,15 +81,28 @@ const Requests = () => {
               </figure>
               <div className="card-body flex-col justify-between items-center">
                 <div>
-                  <h2 className="card-title mb-5">
+                  <h2 className="card-title mb-1">
                     {request?.fromUserId?.firstName}{" "}
                     {request?.fromUserId?.lastName}
                   </h2>
+                  <p className="text-sm opacity-80">
+                    {getDaysAgo(request?.createdAt)}
+                  </p>
                 </div>
 
                 <div className="card-actions justify-end">
-                  <button onClick = {()=>handleAccept("accepted",request)} className="btn">Accept</button>
-                  <button onClick = {()=>handleAccept("rejected",request)} className="btn">Reject</button>
+                  <button
+                    onClick={() => handleAccept("accepted", request)}
+                    className="btn"
+                  >
+                    Accept
+                  </button>
+                  <button
+                    onClick={() => handleAccept("rejected", request)}
+                    className="btn"
+                  >
+                    Reject
+                  </button>
                 </div>
               </div>
             </div>
