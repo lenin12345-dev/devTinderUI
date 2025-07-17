@@ -24,7 +24,7 @@ const Requests = () => {
     try {
       const { fromUserId, _id } = request;
       await fetch(
-        `http://localhost:3000/request/review/${status}/${fromUserId?._id}`,
+        `${API_BASE_URL}/request/review/${status}/${fromUserId?._id}`,
         {
           method: "POST",
           headers: {

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addConnection } from "../utils/connectionSlice";
 import { API_BASE_URL } from "../config/api";
+import { Link } from "react-router-dom";
 
 const Connections = () => {
   const dispatch = useDispatch();
@@ -56,9 +57,7 @@ const Connections = () => {
           : "No Connections"}
       </h2>
 
-      {error && (
-        <p className="text-red-500 mb-4 text-center">{error}</p>
-      )}
+      {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
 
       <div className="flex flex-col items-center">
         {connection?.map((each) => (
@@ -77,6 +76,13 @@ const Connections = () => {
               <h2 className="card-title mb-5 text-center">
                 {each?.firstName} {each?.lastName}
               </h2>
+
+              <Link
+                to={`/chat/${each._id}`} // replace with your route structure
+                className="btn btn-accent text-white px-4 py-2 rounded mt-2"
+              >
+                Chat
+              </Link>
             </div>
           </div>
         ))}

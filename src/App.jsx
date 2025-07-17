@@ -4,6 +4,7 @@ import Body from "./Body.jsx";
 import Authpage from "../src/components/Authpage.jsx";
 
 import Profile from "../src/components/Profile.jsx";
+import Chat from "../src/components/Chat.jsx";
 import Feed from "../src/components/Feed.jsx";
 import Connections from "../src/components/Connections.jsx";
 import Requests from "../src/components/Requests.jsx";
@@ -40,6 +41,7 @@ function App() {
           />
         </Route>
         <Route path="/auth" element={<Authpage />} />
+        <Route path="/chat/:targetUserId" element={<Chat/>} />
 
 
       </Routes>
