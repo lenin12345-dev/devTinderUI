@@ -78,7 +78,7 @@ const Connections = () => {
               </h2>
 
               <Link
-                to={`/chat/${each._id}`} // replace with your route structure
+                to={`/chat/${each._id}`} 
                 className="btn btn-accent text-white px-4 py-2 rounded mt-2"
               >
                 Chat

@@ -31,11 +31,11 @@ const Chat = () => {
     if (!userId) return;
     const socket = createSocketConnection();
     socket.emit("joinChat", { userId, targetUserId });
-    socket.on("messageReceived", ({firstName, text}) => {
-      setMessages(prev=>[...prev, { firstName, text }]);
+    socket.on("messageReceived", ({ firstName, text }) => {
+      setMessages((prev) => [...prev, { firstName, text }]);
     });
     return () => {
-      socket.disconnect(); // clean up on unmount
+      socket.disconnect();
     };
   }, [userId, targetUserId]);
 
@@ -45,21 +45,17 @@ const Chat = () => {
 
   return (
     <div className="flex flex-col h-[90vh] max-w-lg mx-auto border rounded shadow bg-white">
-      {/* Header */}
       <div className="bg-primary text-primary-content p-4 text-center font-semibold">
         Chat
       </div>
 
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-50">
         {messages.map((msg, index) => (
           <div
             key={index}
-            className={`max-w-[80%] px-4 py-2 rounded-lg ${
-              msg.firstName === "YourName" // replace with your "me" identifier logic
-                ? "bg-blue-500 text-white self-end"
-                : "bg-gray-300 text-gray-900 self-start"
-            }`}
+            className={
+              "max-w-[80%] px-4 py-2 rounded-lg bg-gray-300 text-gray-900 self-start"
+            }
           >
             <div className="text-xs font-semibold mb-1">{msg.firstName}</div>
             <div>{msg.text}</div>
@@ -68,7 +64,6 @@ const Chat = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
       <div className="flex p-4 border-t bg-white">
         <input
           type="text"
