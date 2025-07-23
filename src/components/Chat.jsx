@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createSocketConnection } from "../utils/socket";
 import { useParams } from "react-router-dom";
-import { useSelector } from "react-redux"; // fixed
+import { useSelector } from "react-redux";
+import { API_BASE_URL } from "../config/api";
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
@@ -21,18 +22,48 @@ const Chat = () => {
     const socket = createSocketConnection();
     socket.emit("sendMessage", {
       firstName: user.firstName,
+      lastName: user.lastName,
       userId,
       targetUserId,
       text: input,
     });
     setInput("");
   };
+
+  const fetchChatMessages = async () => {
+    const res = await fetch(`${API_BASE_URL}/chat/${targetUserId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch connections.");
+    }
+
+    const chat = await res.json();
+    const chatMessages = chat?.data?.messages.map((msg) => {
+      const { senderId, text } = msg;
+      return {
+        firstName: senderId?.firstName,
+        lastName: senderId?.lastName,
+        text: text,
+      };
+    });
+    setMessages(chatMessages);
+  };
+
+  useEffect(() => {
+    fetchChatMessages();
+  }, []);
   useEffect(() => {
     if (!userId) return;
     const socket = createSocketConnection();
     socket.emit("joinChat", { userId, targetUserId });
-    socket.on("messageReceived", ({ firstName, text }) => {
-      setMessages((prev) => [...prev, { firstName, text }]);
+    socket.on("messageReceived", ({ firstName,lastName, text }) => {
+      setMessages((prev) => [...prev, { firstName,lastName, text }]);
     });
     return () => {
       socket.disconnect();
