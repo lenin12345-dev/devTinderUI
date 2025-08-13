@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { API_BASE_URL } from "../config/api";
 
@@ -40,7 +40,7 @@ const Requests = () => {
       console.error(error);
     }
   };
-  const getDaysAgo = (dateString) => {
+  const getDaysAgo = useMemo((dateString) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffTime = Math.abs(now - date);
@@ -49,7 +49,7 @@ const Requests = () => {
     if (diffDays === 0) return "Today";
     if (diffDays === 1) return "1 day ago";
     return `${diffDays} days ago`;
-  };
+  },[]);
 
   useEffect(() => {
     if (requests.length == 0) getRequests();

@@ -10,7 +10,7 @@ const Connections = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const getConnection = useCallback(async () => {
+  const getConnection = async () => {
     try {
       setLoading(true);
       setError("");
@@ -35,11 +35,11 @@ const Connections = () => {
     } finally {
       setLoading(false);
     }
-  }, [dispatch]);
+  };
 
   useEffect(() => {
     getConnection();
-  }, [getConnection]);
+  }, []);
 
   return (
     <div
