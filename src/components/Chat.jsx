@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { createSocketConnection } from "../utils/socket";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { API_BASE_URL } from "../config/api";
+import axiosInstance from "../config/axiosConfig";
 
 let socket; // ensure socket is reused
 
@@ -34,13 +34,7 @@ const Chat = () => {
 
   const fetchChatMessages = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/chat/${targetUserId}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-      });
-
-      const chat = await res.json();
+      const { data: chat } = await axiosInstance.get(`/chat/${targetUserId}`);
       const chatMessages = chat?.messages?.map((msg) => ({
         firstName: msg?.senderId?.firstName,
         lastName: msg?.senderId?.lastName,
@@ -85,7 +79,10 @@ const Chat = () => {
   return (
     <div className="flex flex-col h-[90vh] max-w-lg mx-auto border rounded shadow bg-white">
       <div className="bg-primary text-primary-content p-4 text-center font-semibold flex items-center justify-center gap-2">
-        Chat with {isTargetOnline && <span className="text-green-400 text-xs">🟢 online</span>}
+        Chat with{" "}
+        {isTargetOnline && (
+          <span className="text-green-400 text-xs">🟢 online</span>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-50">

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { removeFeedUser } from "../utils/feedSlice";
-import { API_BASE_URL } from "../config/api";
+import axiosInstance from "../config/axiosConfig";
 import toast from "react-hot-toast";
 
 const FeedCard = ({ user }) => {
@@ -9,19 +9,32 @@ const FeedCard = ({ user }) => {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleInterest = async (status, id) => {
+  const handleInterest = async (action, id) => {
     setIsLoading(true);
     try {
-      await fetch(`${API_BASE_URL}/request/send/${status}/${id}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-      });
-      toast.success(`Marked as ${status}`);
-      setTimeout(() => dispatch(removeFeedUser(id)), 500); // Small delay for UX
+      // Send swipe (like or dislike)
+      await axiosInstance.post(`/swipe/${id}/${action}`);
+
+      // Check for match if action is "like"
+      if (action === "like") {
+        const { data } = await axiosInstance.get(`/match/${id}`);
+
+        if (data.isMatch) {
+          toast.success("🎉 It's a match!");
+        } else {
+          toast.success("❤️ Like sent!");
+        }
+      } else {
+        toast.success("Passed on this profile");
+      }
+
+      // Remove user from feed
+      setTimeout(() => dispatch(removeFeedUser(id)), 500);
     } catch (error) {
-      console.error("Error sending request:", error);
-      toast.error("Action failed, please try again.");
+      console.error("Error during swipe:", error);
+      toast.error(
+        error.response?.data?.message || "Action failed, please try again.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -45,18 +58,18 @@ const FeedCard = ({ user }) => {
 
         <div className="card-actions mt-4 flex gap-4">
           <button
-            onClick={() => handleInterest("interested", _id)}
+            onClick={() => handleInterest("like", _id)}
             className="btn btn-primary"
             disabled={isLoading}
           >
-            {isLoading ? "Processing..." : "Interested"}
+            {isLoading ? "Processing..." : "❤️ Like"}
           </button>
           <button
-            onClick={() => handleInterest("ignored", _id)}
+            onClick={() => handleInterest("dislike", _id)}
             className="btn btn-outline btn-error"
             disabled={isLoading}
           >
-            {isLoading ? "Processing..." : "Ignore"}
+            {isLoading ? "Processing..." : "👎 Pass"}
           </button>
         </div>
       </div>

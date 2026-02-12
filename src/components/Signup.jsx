@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useSelector, useDispatch } from "react-redux";
 import { loginRequest } from "../utils/userSlice";
-import { API_BASE_URL } from "../config/api";
-
+import axiosInstance from "../config/axiosConfig";
 
 const SignUp = () => {
   const [signupObj, setSignupObj] = useState({
@@ -33,18 +32,8 @@ const SignUp = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/signup`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(signupObj),
-      });
-
-      const data = await response.json();
-      if (!response.ok || !data?.data) {
-        throw new Error(data?.message || "Signup failed.");
-      }
-       dispatch(loginRequest(data.data));
+      const { data } = await axiosInstance.post(`/signup`, signupObj);
+      dispatch(loginRequest(data.data));
       toast.success("Signup successful!");
       navigate("/profile");
     } catch (error) {

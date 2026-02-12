@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { API_BASE_URL } from "../config/api";
+import axiosInstance from "../config/axiosConfig";
 import {
   startLoading,
   addRequests,
@@ -16,19 +16,7 @@ const Requests = () => {
     try {
       dispatch(startLoading());
 
-      const res = await fetch(`${API_BASE_URL}/user/requests/received`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch requests.");
-      }
-
-      const data = await res.json();
+      const { data } = await axiosInstance.get(`/user/requests/received`);
       dispatch(addRequests(Array.isArray(data?.data) ? data.data : []));
     } catch (err) {
       console.error(err);
@@ -40,21 +28,7 @@ const Requests = () => {
     try {
       const { fromUserId, _id } = request;
 
-      const res = await fetch(
-        `${API_BASE_URL}/request/review/${status}/${fromUserId?._id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: "",
-          credentials: "include",
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error("Failed to update request status.");
-      }
+      await axiosInstance.post(`/request/review/${status}/${fromUserId?._id}`);
 
       dispatch(removeRequests(_id));
     } catch (err) {

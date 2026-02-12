@@ -3,9 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { loginRequest } from "../utils/userSlice";
 import toast from "react-hot-toast";
-import { API_BASE_URL } from "../config/api";
-
-
+import axiosInstance from "../config/axiosConfig";
 
 const Login = () => {
   const [loginObj, setLoginObj] = useState({ emailId: "", password: "" });
@@ -23,24 +21,13 @@ const Login = () => {
 
     if (!emailId || !password) {
       toast.error("Please enter both email and password.");
-      setErrorMsg("Please enter both email and password.")
+      setErrorMsg("Please enter both email and password.");
       return;
     }
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(loginObj),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok || !data?.data) {
-        throw new Error(data?.message || "Invalid credentials.");
-      }
+      const { data } = await axiosInstance.post(`/login`, loginObj);
 
       dispatch(loginRequest(data.data));
       toast.success("Login successful!");

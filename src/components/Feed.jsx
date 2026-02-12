@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import FeedCard from "./FeedCard";
 import { addFeed } from "../utils/feedSlice";
-import { API_BASE_URL } from "../config/api";
+import axiosInstance from "../config/axiosConfig";
 
 const Feed = () => {
   const dispatch = useDispatch();
@@ -10,14 +10,7 @@ const Feed = () => {
 
   const getFeedUser = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/feed?page=1&limit=10`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-      const data = await response.json();
+      const { data } = await axiosInstance.get(`/feed?page=1&limit=10`);
       dispatch(addFeed(data?.data));
     } catch (error) {
       console.log(error);
@@ -35,9 +28,7 @@ const Feed = () => {
   }
 
   return (
-    <div className="flex justify-center">
-      { <FeedCard user={feed[0]} />}
-    </div>
+    <div className="flex justify-center">{<FeedCard user={feed[0]} />}</div>
   );
 };
 

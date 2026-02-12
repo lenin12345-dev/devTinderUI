@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { loginRequest } from "../utils/userSlice";
 import { toast } from "react-hot-toast";
-import { API_BASE_URL } from "../config/api";
+import axiosInstance from "../config/axiosConfig";
 
 const Profile = () => {
   const { user } = useSelector((state) => state.user);
@@ -54,31 +54,20 @@ const Profile = () => {
         toast.error("Gender must be 'male', 'female' ");
         return;
       }
-  
+
       // Photo URL validation (basic)
       if (!photoUrl) {
         toast.error("Add a profile pic");
         return;
       }
-  
+
       // Age validation
       const ageNum = Number(age);
       if (age && (!Number.isInteger(ageNum) || ageNum < 13 || ageNum > 120)) {
         toast.error("Age must be a valid number between 13 and 120.");
         return;
       }
-      const res = await fetch(`${API_BASE_URL}/profile/edit`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editUser),
-        credentials: "include",
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data?.message || "Something went wrong");
-      }
+      const { data } = await axiosInstance.patch(`/profile/edit`, editUser);
 
       dispatch(loginRequest(data?.data));
       toast.success("Profile updated successfully");

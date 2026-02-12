@@ -1,9 +1,8 @@
-import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
-import { loginRequest } from '../utils/userSlice';
-import { API_BASE_URL } from "../config/api";
-
+import React from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { loginRequest } from "../utils/userSlice";
+import axiosInstance from "../config/axiosConfig";
 
 const Navbar = () => {
   const { user } = useSelector((state) => state.user);
@@ -12,14 +11,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/logout`, {
-        method: "POST",
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        throw new Error("Logout failed");
-      }
+      await axiosInstance.post(`/logout`);
 
       dispatch(loginRequest(null));
       localStorage.removeItem("user");
@@ -32,7 +24,10 @@ const Navbar = () => {
   return (
     <div className="navbar bg-base-300 shadow-md">
       <div className="flex-1">
-        <Link to="/" className="text-xl font-bold hover:text-primary transition-colors">
+        <Link
+          to="/"
+          className="text-xl font-bold hover:text-primary transition-colors"
+        >
           Dev MeetUp
         </Link>
       </div>
@@ -54,8 +49,7 @@ const Navbar = () => {
               <img
                 alt="Profile"
                 src={
-                  user?.photoUrl ||
-                  "https://via.placeholder.com/150?text=User"
+                  user?.photoUrl || "https://via.placeholder.com/150?text=User"
                 }
                 className="w-full h-full object-cover"
               />

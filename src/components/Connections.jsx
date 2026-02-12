@@ -6,37 +6,25 @@ import {
   addConnection,
   setConnectionError,
 } from "../utils/connectionSlice";
-import { API_BASE_URL } from "../config/api";
+import axiosInstance from "../config/axiosConfig";
 import { Link } from "react-router-dom";
 
 const Connections = () => {
   const dispatch = useDispatch();
   const { connection, loading, error } = useSelector(
-    (store) => store.connection
+    (store) => store.connection,
   );
 
   const getConnection = useCallback(async () => {
     try {
       dispatch(startLoading());
 
-      const res = await fetch(`${API_BASE_URL}/user/connections`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch connections.");
-      }
-
-      const data = await res.json();
+      const { data } = await axiosInstance.get(`/user/connections`);
       dispatch(addConnection(Array.isArray(data?.data) ? data.data : []));
     } catch (err) {
       console.error(err);
       dispatch(
-        setConnectionError("Failed to load connections. Please try again.")
+        setConnectionError("Failed to load connections. Please try again."),
       );
     }
   }, [dispatch]);
@@ -59,10 +47,10 @@ const Connections = () => {
         {loading
           ? "Loading Connections..."
           : error
-          ? "Error"
-          : hasConnections
-          ? "All Connections"
-          : "No Connections"}
+            ? "Error"
+            : hasConnections
+              ? "All Connections"
+              : "No Connections"}
       </h2>
 
       {error && !loading && (
