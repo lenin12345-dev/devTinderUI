@@ -6,20 +6,50 @@ const feedSlice = createSlice({
     feed: [],
     loading: false,
     error: null,
+    page: 1,
+    hasMore: true,
+    matches: [],
   },
   reducers: {
-    addFeed: (state, action) => {
-        state.feed =  action.payload
+    setFeed: (state, action) => {
+      state.feed = action.payload;
+      state.loading = false;
+      state.error = null;
     },
-    removeFeedUser:(state,action)=>{
-      state.feed  = state.feed.filter((each)=>each._id!==action.payload)
-        // the return state inside removeFeedUser is unnecessary because Redux Toolkit uses Immer, which allows you to directly mutate the state. 
-       
-    
-      
-    }
+    addFeed: (state, action) => {
+      state.feed = [...state.feed, ...action.payload];
+      state.loading = false;
+    },
+    removeFeedUser: (state, action) => {
+      state.feed = state.feed.filter((user) => user._id !== action.payload);
+    },
+    setLoading: (state, action) => {
+      state.loading = action.payload;
+    },
+    setError: (state, action) => {
+      state.error = action.payload;
+    },
+    incrementPage: (state) => {
+      state.page += 1;
+    },
+    setHasMore: (state, action) => {
+      state.hasMore = action.payload;
+    },
+    addMatch: (state, action) => {
+      state.matches.push(action.payload);
+    },
   },
 });
 
-  export const {addFeed,removeFeedUser} = feedSlice.actions
-export default feedSlice.reducer
+export const {
+  setFeed,
+  addFeed,
+  removeFeedUser,
+  setLoading,
+  setError,
+  incrementPage,
+  setHasMore,
+  addMatch,
+} = feedSlice.actions;
+
+export default feedSlice.reducer;
