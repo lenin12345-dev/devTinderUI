@@ -45,7 +45,6 @@ const Feed = () => {
         dispatch(addFeed(data.data));
       }
 
-      // backend should send hasMore
       dispatch(setHasMore(data.hasMore));
 
       if (data.hasMore) dispatch(incrementPage());

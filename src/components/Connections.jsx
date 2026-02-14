@@ -7,6 +7,7 @@ import {
   setConnectionError,
 } from "../utils/connectionSlice";
 import axiosInstance from "../config/axiosConfig";
+import { extractImageUrl } from "../utils/imageUtils";
 import { Link } from "react-router-dom";
 
 const Connections = () => {
@@ -77,7 +78,7 @@ const Connections = () => {
             >
               <figure className="p-5">
                 <img
-                  src={each?.photoUrl || "/default-avatar.png"}
+                  src={extractImageUrl(each?.photoUrl)}
                   alt={`${each?.firstName || "User"} ${each?.lastName || ""}`}
                   className="rounded-full h-28 w-28 object-cover"
                 />

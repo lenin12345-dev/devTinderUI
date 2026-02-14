@@ -4,6 +4,7 @@ import TinderCard from "react-tinder-card";
 import toast from "react-hot-toast";
 import { removeFeedUser, addMatch } from "../utils/feedSlice";
 import axiosInstance from "../config/axiosConfig";
+import { extractImageUrl } from "../utils/imageUtils";
 
 const FeedCard = ({ user, isBehind = false, onSwipe }) => {
   const { firstName, lastName, photoUrl, age, _id, skills } = user;
@@ -51,7 +52,7 @@ const FeedCard = ({ user, isBehind = false, onSwipe }) => {
       >
         <figure className="px-6 pt-6">
           <img
-            src={photoUrl || "/default-avatar.png"}
+            src={extractImageUrl(photoUrl)}
             alt={`${firstName} ${lastName}`}
             className="rounded-xl h-72 w-full object-cover"
           />

@@ -1,6 +1,7 @@
 import React, { useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../config/axiosConfig";
+import { extractImageUrl } from "../utils/imageUtils";
 import {
   startLoading,
   addRequests,
@@ -95,7 +96,7 @@ const Requests = () => {
           >
             <figure className="p-5">
               <img
-                src={request?.fromUserId?.photoUrl}
+                src={extractImageUrl(request?.fromUserId?.photoUrl)}
                 alt={`${request?.fromUserId?.firstName || "User"} ${
                   request?.fromUserId?.lastName || ""
                 }`}

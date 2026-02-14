@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { loginRequest } from "../utils/userSlice";
 import { toast } from "react-hot-toast";
 import axiosInstance from "../config/axiosConfig";
+import { extractImageUrl } from "../utils/imageUtils";
 
 const Profile = () => {
   const { user } = useSelector((state) => state.user);
@@ -81,7 +82,7 @@ const Profile = () => {
       <div className="bg-white rounded-2xl shadow-lg w-full max-w-md p-6">
         <div className="flex flex-col items-center">
           <img
-            src={editUser.photoUrl || "https://via.placeholder.com/150"}
+            src={extractImageUrl(editUser.photoUrl)}
             alt="User"
             className="w-32 h-32 rounded-full object-cover border-4 border-primary shadow-sm mb-4"
           />
