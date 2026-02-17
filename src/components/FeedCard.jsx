@@ -10,6 +10,12 @@ const FeedCard = ({ user, isBehind = false, onSwipe }) => {
   const { firstName, lastName, photoUrl, age, _id, skills } = user;
   const dispatch = useDispatch();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
+
+  const handleImageError = () => {
+    console.error("Image failed to load:", extractImageUrl(photoUrl));
+    setImageFailed(true);
+  };
 
   const handleSwipe = async (dir) => {
     const action = dir === "right" ? "like" : "dislike";
@@ -55,6 +61,13 @@ const FeedCard = ({ user, isBehind = false, onSwipe }) => {
             src={extractImageUrl(photoUrl)}
             alt={`${firstName} ${lastName}`}
             className="rounded-xl h-72 w-full object-cover"
+            onError={handleImageError}
+            onLoad={() =>
+              console.log(
+                "Image loaded successfully:",
+                extractImageUrl(photoUrl),
+              )
+            }
           />
         </figure>
         <div className="card-body items-center text-center">

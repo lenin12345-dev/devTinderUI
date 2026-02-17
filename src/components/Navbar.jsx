@@ -3,7 +3,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { loginRequest } from "../utils/userSlice";
 import axiosInstance from "../config/axiosConfig";
-import { extractImageUrl } from "../utils/imageUtils";
 
 const Navbar = () => {
   const { user } = useSelector((state) => state.user);
@@ -21,8 +20,6 @@ const Navbar = () => {
       console.error("Logout Error:", err);
     }
   };
-
-  console.log("Navbar Render - User:", user);
 
   return (
     <div className="navbar bg-base-300 shadow-md">
@@ -51,7 +48,9 @@ const Navbar = () => {
             <div className="w-11 h-11 rounded-full overflow-hidden border border-base-content">
               <img
                 alt="Profile"
-                src={extractImageUrl(user?.photoUrl)}
+                src={
+                  user?.photoUrl || "https://via.placeholder.com/150?text=User"
+                }
                 className="w-full h-full object-cover"
               />
             </div>
