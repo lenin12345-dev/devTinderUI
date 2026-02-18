@@ -16,6 +16,7 @@ const connectionSlice = createSlice({
     addConnection: (state, action) => {
       state.loading = false;
       state.connection = action.payload || [];
+      state.error = null;
     },
     setConnectionError: (state, action) => {
       state.loading = false;

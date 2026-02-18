@@ -1,5 +1,5 @@
 // components/Connections.jsx
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   startLoading,
@@ -16,6 +16,9 @@ const Connections = () => {
     (store) => store.connection,
   );
 
+  // ✅ track if we already fetched
+  const fetchedRef = useRef(false);
+
   const getConnection = useCallback(async () => {
     try {
       dispatch(startLoading());
@@ -30,11 +33,13 @@ const Connections = () => {
     }
   }, [dispatch]);
 
+  // ✅ run once on mount
   useEffect(() => {
-    if (!connection || connection.length === 0) {
+    if (!fetchedRef.current) {
+      fetchedRef.current = true;
       getConnection();
     }
-  }, [getConnection, connection]);
+  }, [getConnection]);
 
   const hasConnections = Array.isArray(connection) && connection.length > 0;
 
@@ -54,6 +59,7 @@ const Connections = () => {
               : "No Connections"}
       </h2>
 
+      {/* Error message + retry */}
       {error && !loading && (
         <div className="flex flex-col items-center mb-4">
           <p className="text-red-500 mb-2 text-center">{error}</p>
@@ -63,12 +69,14 @@ const Connections = () => {
         </div>
       )}
 
+      {/* Empty state */}
       {!loading && !hasConnections && !error && (
         <p className="text-center text-lg opacity-70">
           You don’t have any connections yet.
         </p>
       )}
 
+      {/* Connections list */}
       <div className="flex flex-col items-center">
         {hasConnections &&
           connection.map((each) => (
