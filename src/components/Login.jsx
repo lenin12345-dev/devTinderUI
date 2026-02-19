@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { loginRequest } from "../utils/userSlice";
+import { authStart } from "../utils/userSlice";
 import toast from "react-hot-toast";
 import axiosInstance from "../config/axiosConfig";
 
@@ -27,13 +27,13 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const { data } = await axiosInstance.post(`/login`, loginObj);
+      await axiosInstance.post(`/login`, loginObj);
 
-      dispatch(loginRequest(data.data));
-      toast.success("Login successful!");
+      dispatch(authStart()); // trigger re-fetch
       navigate("/");
+      toast.success("Login successful!");
     } catch (error) {
-      toast.error(error.message || "Login failed. Please try again.");
+      toast.error(error.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -89,3 +89,20 @@ const Login = () => {
 };
 
 export default Login;
+/*/ When user logs in:
+
+POST /login
+→ backend sends Set-Cookie: token=abc123
+→ browser saves cookie
+
+
+
+So React cannot truly know if login worked yet.
+
+The only reliable check is:
+
+GET /profile
+→ browser automatically attaches cookie
+→ backend reads cookie
+→ returns user
+/*/

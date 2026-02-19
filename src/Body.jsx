@@ -1,38 +1,23 @@
-import React, { useEffect, useRef } from "react";
+// src/layouts/Body.jsx
 import Navbar from "../src/components/Navbar.jsx";
 import Footer from "../src/components/Footer.jsx";
-import { Outlet, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { loginRequest } from "./utils/userSlice.jsx";
-import axiosInstance from "./config/axiosConfig.js";
+import { Outlet } from "react-router-dom";
+import { useSelector } from "react-redux";
+import useAuthInit from "../src/hooks/useAuthInit.js";
 
 const Body = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { user } = useSelector((state) => state.user);
-  const fetchAttempted = useRef(false); // Prevent multiple requests
+  useAuthInit();
 
-  const getUser = async () => {
-    if (fetchAttempted.current) return;
-    fetchAttempted.current = true;
+  const { user, loading } = useSelector((state) => state.user);
 
-    try {
-      const { data } = await axiosInstance.get("/profile");
-      dispatch(loginRequest(data?.user));
-    } catch (error) {
-      console.error("Profile fetch error:", error);
-      // Handle 401 Unauthorized - redirect to login
-      if (error.response?.status === 401) {
-        console.log("User not authenticated, redirecting to login");
-        navigate("/auth");
-      }
-    }
-  };
-  useEffect(() => {
-    if (!user && !fetchAttempted.current) {
-      getUser();
-    }
-  }, []);
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p className="text-gray-500 text-lg">Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
@@ -40,6 +25,7 @@ const Body = () => {
       <div className="flex-grow">
         <Outlet />
       </div>
+
       <Footer />
     </div>
   );

@@ -1,50 +1,42 @@
-import { useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Body from "./Body.jsx";
-import Authpage from "../src/components/Authpage.jsx";
-
-import Profile from "../src/components/Profile.jsx";
-import Chat from "../src/components/Chat.jsx";
-import Feed from "../src/components/Feed.jsx";
-import Connections from "../src/components/Connections.jsx";
-import Requests from "../src/components/Requests.jsx";
-import { useSelector } from "react-redux";
 import { Toaster } from "react-hot-toast";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import { lazy, Suspense } from "react";
+import FullPageLoader from "./components/ui/FullPageLoader.jsx";
+
+// Lazy-loaded pages
+const Feed = lazy(() => import("./components/Feed.jsx"));
+const Profile = lazy(() => import("./components/Profile.jsx"));
+const Chat = lazy(() => import("./components/Chat.jsx"));
+const Connections = lazy(() => import("./components/Connections.jsx"));
+const Requests = lazy(() => import("./components/Requests.jsx"));
+const Authpage = lazy(() => import("./components/Authpage.jsx"));
 
 function App() {
-  const ProtectedRoute = ({ element }) => {
-    const { user } = useSelector((state) => state.user);
-    return user ? element : <Navigate to="/auth" replace />;
-  };
-
   return (
     <BrowserRouter>
-       <Toaster position="top-center" />
-      <Routes>
-        <Route path="/" element={<Body />}>
-          <Route
-            index
-            path="/"
-            element={<ProtectedRoute element={<Feed />} />}
-          />
-          <Route
-            path="/connections"
-            element={<ProtectedRoute element={<Connections />} />}
-          />
-          <Route
-            path="/requests"
-            element={<ProtectedRoute element={<Requests />} />}
-          />
-          <Route
-            path="profile"
-            element={<ProtectedRoute element={<Profile />} />}
-          />
-        </Route>
-        <Route path="/auth" element={<Authpage />} />
-        <Route path="/chat/:targetUserId" element={<Chat/>} />
+      <Toaster position="top-center" />
 
+      <Suspense fallback={<FullPageLoader />}>
+        <Routes>
+          {/* Protected Routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<Body />}>
+              {/* It means: when user visits / exactly, render <Feed /> inside <Body />. */}
+              <Route index element={<Feed />} />
+              <Route path="connections" element={<Connections />} />
+              <Route path="requests" element={<Requests />} />
+              <Route path="profile" element={<Profile />} />
+            </Route>
 
-      </Routes>
+            <Route path="/chat/:targetUserId" element={<Chat />} />
+          </Route>
+
+          {/* Auth Route */}
+          <Route path="/auth" element={<Authpage />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

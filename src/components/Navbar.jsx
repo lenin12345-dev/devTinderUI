@@ -1,7 +1,6 @@
-import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { loginRequest } from "../utils/userSlice";
+import { logout } from "../utils/userSlice";
 import axiosInstance from "../config/axiosConfig";
 
 const Navbar = () => {
@@ -13,8 +12,7 @@ const Navbar = () => {
     try {
       await axiosInstance.post(`/logout`);
 
-      dispatch(loginRequest(null));
-      localStorage.removeItem("user");
+      dispatch(logout());
       navigate("/auth");
     } catch (err) {
       console.error("Logout Error:", err);

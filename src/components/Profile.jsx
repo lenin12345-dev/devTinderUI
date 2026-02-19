@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { loginRequest } from "../utils/userSlice";
+import { authSuccess } from "../utils/userSlice";
 import { toast } from "react-hot-toast";
 import axiosInstance from "../config/axiosConfig";
 import { extractImageUrl } from "../utils/imageUtils";
@@ -70,7 +70,8 @@ const Profile = () => {
       }
       const { data } = await axiosInstance.patch(`/profile/edit`, editUser);
 
-      dispatch(loginRequest(data?.data));
+      dispatch(authSuccess(data.data));
+
       toast.success("Profile updated successfully");
     } catch (error) {
       toast.error(error.message || "Failed to update");

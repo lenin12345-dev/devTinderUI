@@ -1,10 +1,6 @@
 import React, { useEffect, useRef, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  startLoading,
-  addRequests,
-  setRequestError,
-} from "../utils/requestSlice";
+import { startLoading, addRequests, setError } from "../utils/requestSlice";
 import axiosInstance from "../config/axiosConfig";
 
 const Requests = () => {
@@ -20,7 +16,7 @@ const Requests = () => {
       dispatch(addRequests(Array.isArray(data?.data) ? data.data : []));
     } catch (err) {
       console.error(err);
-      dispatch(setRequestError("Failed to load requests."));
+      dispatch(setError("Failed to load requests."));
     }
   }, [dispatch]);
 
