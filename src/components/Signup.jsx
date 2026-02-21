@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useSelector, useDispatch } from "react-redux";
-import { authStart } from "../utils/userSlice";
+import { authSuccess } from "../utils/userSlice";
 import axiosInstance from "../config/axiosConfig";
 
 const SignUp = () => {
@@ -33,11 +33,15 @@ const SignUp = () => {
     setLoading(true);
     try {
       await axiosInstance.post(`/signup`, signupObj);
-      dispatch(authStart()); // trigger re-fetch
-      navigate("/");
+      const { data } = await axiosInstance.get("/profile");
+      dispatch(authSuccess(data.user));
+      navigate("/profile");
+
       toast.success("Signup successful!");
     } catch (error) {
-      setErrorMsg(error.message || "Signup failed. Please try again.");
+      setErrorMsg(
+        error.response?.data?.message || "Signup failed. Please try again.",
+      );
     } finally {
       setLoading(false);
     }

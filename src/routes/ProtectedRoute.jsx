@@ -4,8 +4,8 @@ import FullPageLoader from "../components/ui/FullPageLoader";
 
 export default function ProtectedRoute() {
   const { user, loading } = useSelector((state) => state.user);
-
   if (loading) return <FullPageLoader />;
+  if (!loading && user === null) return <Navigate to="/auth" replace />;
 
-  return user ? <Outlet /> : <Navigate to="/auth" replace />;
+  return <Outlet />;
 }

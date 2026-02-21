@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { authStart, authSuccess, authFailure } from "../utils/userSlice";
 import axiosInstance from "../config/axiosConfig";
 
@@ -8,18 +8,18 @@ export default function useAuthInit() {
 
   useEffect(() => {
     let mounted = true;
+    dispatch(authStart()); // set loading = true
 
     const checkAuth = async () => {
-      dispatch(authStart());
       try {
         const { data } = await axiosInstance.get("/profile");
         if (mounted) dispatch(authSuccess(data.user));
-      } catch {
+      } catch (err) {
         if (mounted) dispatch(authFailure());
       }
     };
 
     checkAuth();
     return () => (mounted = false);
-  }, [dispatch]);
+  }, []); // run once on mount
 }

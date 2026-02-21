@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { authStart } from "../utils/userSlice";
+import { authSuccess } from "../utils/userSlice";
 import toast from "react-hot-toast";
 import axiosInstance from "../config/axiosConfig";
 
@@ -11,6 +11,7 @@ const Login = () => {
   const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.user);
 
   const handleChange = (event) => {
     setLoginObj({ ...loginObj, [event.target.name]: event.target.value });
@@ -28,9 +29,11 @@ const Login = () => {
     setLoading(true);
     try {
       await axiosInstance.post(`/login`, loginObj);
-
-      dispatch(authStart()); // trigger re-fetch
+      const { data } = await axiosInstance.get("/profile");
+      console.log("Login response data:", data);
+      dispatch(authSuccess(data.user));
       navigate("/");
+
       toast.success("Login successful!");
     } catch (error) {
       toast.error(error.response?.data?.message || "Login failed");
@@ -38,6 +41,12 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user]);
 
   return (
     <div className="flex justify-center mt-12">
