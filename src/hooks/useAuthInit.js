@@ -8,7 +8,6 @@ export default function useAuthInit() {
 
   useEffect(() => {
     let mounted = true;
-    dispatch(authStart()); // set loading = true
 
     const checkAuth = async () => {
       try {
@@ -21,5 +20,5 @@ export default function useAuthInit() {
 
     checkAuth();
     return () => (mounted = false);
-  }, []); // run once on mount
+  }, []);
 }

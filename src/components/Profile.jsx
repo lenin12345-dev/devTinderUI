@@ -83,9 +83,13 @@ const Profile = () => {
       <div className="bg-white rounded-2xl shadow-lg w-full max-w-md p-6">
         <div className="flex flex-col items-center">
           <img
-            src={extractImageUrl(editUser.photoUrl)}
-            alt="User"
-            className="w-32 h-32 rounded-full object-cover border-4 border-primary shadow-sm mb-4"
+            src={
+              user?.photoUrl && user.photoUrl.trim() !== ""
+                ? user.photoUrl
+                : "https://via.placeholder.com/400x500?text=User+Profile"
+            }
+            alt="Profile"
+            className="w-40 h-40 rounded-full object-cover"
           />
           <h2 className="text-xl font-semibold mb-4">Edit Your Profile</h2>
         </div>

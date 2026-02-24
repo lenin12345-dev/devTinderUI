@@ -5,7 +5,7 @@ import axiosInstance from "../config/axiosConfig";
 
 const Requests = () => {
   const dispatch = useDispatch();
-  const { requests, loading, error } = useSelector((store) => store.request);
+  const { requests, loading, error } = useSelector((store) => store.requests);
 
   const fetchedRef = useRef(false);
 
@@ -13,6 +13,7 @@ const Requests = () => {
     try {
       dispatch(startLoading());
       const { data } = await axiosInstance.get("/user/requests/received");
+      console.log("Received requests:", data);
       dispatch(addRequests(Array.isArray(data?.data) ? data.data : []));
     } catch (err) {
       console.error(err);
