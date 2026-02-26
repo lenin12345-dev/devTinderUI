@@ -6,7 +6,7 @@ const feedSlice = createSlice({
     feed: [],
     loading: false,
     error: null,
-    page: 1,
+    nextCursor: null,
     hasMore: true,
     matches: [],
   },
@@ -29,8 +29,8 @@ const feedSlice = createSlice({
     setError: (state, action) => {
       state.error = action.payload;
     },
-    incrementPage: (state) => {
-      state.page += 1;
+    setNextCursor: (state, action) => {
+      state.nextCursor = action.payload;
     },
     setHasMore: (state, action) => {
       state.hasMore = action.payload;

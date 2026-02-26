@@ -11,7 +11,10 @@ export default function useAuthInit() {
 
     const checkAuth = async () => {
       try {
+        dispatch(authStart());
+
         const { data } = await axiosInstance.get("/profile");
+
         if (mounted) dispatch(authSuccess(data.user));
       } catch (err) {
         if (mounted) dispatch(authFailure());

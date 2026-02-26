@@ -3,11 +3,8 @@ import Navbar from "../src/components/Navbar.jsx";
 import Footer from "../src/components/Footer.jsx";
 import { Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
-import useAuthInit from "../src/hooks/useAuthInit.js";
 
 const Body = () => {
-  useAuthInit();
-
   const { user, loading } = useSelector((state) => state.user);
 
   if (loading) {

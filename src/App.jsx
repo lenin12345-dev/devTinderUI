@@ -12,8 +12,10 @@ const Chat = lazy(() => import("./components/Chat.jsx"));
 const Connections = lazy(() => import("./components/Connections.jsx"));
 const Requests = lazy(() => import("./components/Requests.jsx"));
 const Authpage = lazy(() => import("./components/Authpage.jsx"));
+import useAuthInit from "../src/hooks/useAuthInit.js";
 
 function App() {
+  useAuthInit();
   return (
     <BrowserRouter>
       <Toaster position="top-center" />
