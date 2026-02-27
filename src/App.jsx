@@ -35,7 +35,6 @@ function App() {
             <Route path="/chat/:targetUserId" element={<Chat />} />
           </Route>
 
-          {/* Auth Route */}
           <Route path="/auth" element={<Authpage />} />
         </Routes>
       </Suspense>

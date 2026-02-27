@@ -80,7 +80,7 @@ const Feed = () => {
   };
 
   // Loading UI
-  if (loading && feed.length === 0) {
+  if (loading && feed.length === 0 && !hasMore) {
     return (
       <div className="flex flex-col items-center mt-10 gap-4">
         <SkeletonCard />

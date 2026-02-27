@@ -1,27 +1,25 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+const initialState = {
+  feed: [],
+  loading: false,
+  error: null,
+  hasMore: true,
+  nextCursor: null,
+};
+
 const feedSlice = createSlice({
   name: "feed",
-  initialState: {
-    feed: [],
-    loading: false,
-    error: null,
-    nextCursor: null,
-    hasMore: true,
-    matches: [],
-  },
+  initialState,
   reducers: {
     setFeed: (state, action) => {
       state.feed = action.payload;
-      state.loading = false;
-      state.error = null;
     },
     addFeed: (state, action) => {
       state.feed = [...state.feed, ...action.payload];
-      state.loading = false;
     },
-    removeFeedUser: (state, action) => {
-      state.feed = state.feed.filter((user) => user._id !== action.payload);
+    removeFeedUser: (state) => {
+      state.feed.shift();
     },
     setLoading: (state, action) => {
       state.loading = action.payload;
@@ -29,27 +27,29 @@ const feedSlice = createSlice({
     setError: (state, action) => {
       state.error = action.payload;
     },
-    setNextCursor: (state, action) => {
-      state.nextCursor = action.payload;
-    },
     setHasMore: (state, action) => {
       state.hasMore = action.payload;
+    },
+    setNextCursor: (state, action) => {
+      state.nextCursor = action.payload;
     },
     addMatch: (state, action) => {
       state.matches.push(action.payload);
     },
+    resetFeed: () => initialState,
   },
 });
 
 export const {
   setFeed,
+  addMatch,
   addFeed,
   removeFeedUser,
   setLoading,
   setError,
-  incrementPage,
   setHasMore,
-  addMatch,
+  setNextCursor,
+  resetFeed,
 } = feedSlice.actions;
 
 export default feedSlice.reducer;
