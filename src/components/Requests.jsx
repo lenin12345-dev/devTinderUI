@@ -7,7 +7,6 @@ const Requests = () => {
   const dispatch = useDispatch();
   const { requests, loading, error } = useSelector((store) => store.requests);
 
-  // 🔥 Fetch Requests
   const fetchRequests = useCallback(async () => {
     try {
       dispatch(startLoading());
@@ -20,6 +19,16 @@ const Requests = () => {
       dispatch(setError("Failed to load requests."));
     }
   }, [dispatch]);
+  const handleReview = async (status, requestId) => {
+    try {
+      await axiosInstance.post(`/request/review/${status}/${requestId}`);
+
+      // Optimistically remove from UI
+      dispatch(addRequests(requests.filter((req) => req._id !== requestId)));
+    } catch (err) {
+      console.error("Review failed:", err);
+    }
+  };
 
   useEffect(() => {
     fetchRequests();
@@ -27,7 +36,6 @@ const Requests = () => {
 
   return (
     <div className="flex flex-col items-center py-8 px-4">
-      {/* 🔥 Title Section */}
       <h2 className="text-2xl font-bold mb-6">
         {loading
           ? "Loading Requests..."
@@ -38,19 +46,16 @@ const Requests = () => {
               : "No Requests"}
       </h2>
 
-      {/* 🔥 Retry Button */}
       {error && !loading && (
         <button onClick={fetchRequests} className="btn btn-primary mb-6">
           Retry
         </button>
       )}
 
-      {/* 🔥 Empty State */}
       {!loading && !error && requests.length === 0 && (
         <p className="text-gray-500">No connection requests at the moment.</p>
       )}
 
-      {/* 🔥 Requests Cards */}
       <div className="flex flex-col gap-6 w-full max-w-md">
         {requests.map((req) => {
           const user = req?.fromUserId;
@@ -63,7 +68,6 @@ const Requests = () => {
               className="card bg-base-100 shadow-xl border border-base-200"
             >
               <div className="card-body flex flex-row items-center gap-4">
-                {/* Profile Image */}
                 <div className="avatar">
                   <div className="w-16 h-16 rounded-full overflow-hidden">
                     <img
@@ -83,7 +87,6 @@ const Requests = () => {
                   </div>
                 </div>
 
-                {/* User Info */}
                 <div className="flex flex-col">
                   <h3 className="font-semibold text-lg">
                     {user.firstName} {user.lastName}
@@ -95,10 +98,18 @@ const Requests = () => {
                 </div>
               </div>
 
-              {/* Actions */}
               <div className="card-actions justify-end px-4 pb-4">
-                <button className="btn btn-success btn-sm">Accept</button>
-                <button className="btn btn-outline btn-error btn-sm">
+                <button
+                  onClick={() => handleReview("accepted", req._id)}
+                  className="btn btn-success btn-sm"
+                >
+                  Accept
+                </button>
+
+                <button
+                  onClick={() => handleReview("rejected", req._id)}
+                  className="btn btn-outline btn-error btn-sm"
+                >
                   Reject
                 </button>
               </div>
