@@ -2,16 +2,19 @@ import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { logout } from "../utils/userSlice";
 import axiosInstance from "../config/axiosConfig";
+import { useState, useRef, useEffect } from "react";
 
 const Navbar = () => {
   const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
   const handleLogout = async () => {
     try {
       await axiosInstance.post(`/logout`);
-
       dispatch(logout());
       navigate("/auth");
     } catch (err) {
@@ -19,28 +22,41 @@ const Navbar = () => {
     }
   };
 
+  // Close on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
-    <div className="navbar bg-base-300 shadow-md">
+    <div className="navbar bg-base-300 px-6 shadow-md">
+      {/* Left */}
       <div className="flex-1">
         <Link
           to="/"
-          className="text-xl font-bold hover:text-primary transition-colors"
+          className="text-2xl font-bold hover:text-primary transition-colors"
         >
           Dev MeetUp
         </Link>
       </div>
 
-      <div className="flex-none gap-4 items-center">
+      {/* Right */}
+      <div className="flex items-center gap-4">
         {user && (
-          <span className="hidden md:inline text-md font-medium">
-            Welcome, {user.firstName || "User"}!
+          <span className="hidden md:block font-medium whitespace-nowrap">
+            Welcome, {user.firstName || "User"}
           </span>
         )}
 
-        <div className="dropdown dropdown-end">
-          <div
-            tabIndex={0}
-            role="button"
+        <div ref={dropdownRef} className="relative">
+          <button
+            onClick={() => setOpen(!open)}
             className="btn btn-ghost btn-circle avatar"
           >
             <div className="w-11 h-11 rounded-full overflow-hidden border border-base-content">
@@ -52,45 +68,47 @@ const Navbar = () => {
                 className="w-full h-full object-cover"
               />
             </div>
-          </div>
+          </button>
 
-          <ul
-            tabIndex={0}
-            className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
-          >
-            <li>
-              <Link
-                to="/profile"
-                className="hover:bg-base-200 transition-colors rounded"
-              >
-                Profile
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/connections"
-                className="hover:bg-base-200 transition-colors rounded"
-              >
-                Connections
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/requests"
-                className="hover:bg-base-200 transition-colors rounded"
-              >
-                Requests
-              </Link>
-            </li>
-            <li>
-              <button
-                onClick={handleLogout}
-                className="w-full text-left hover:bg-error hover:text-white transition-colors rounded px-2 py-1"
-              >
-                Logout
-              </button>
-            </li>
-          </ul>
+          {open && (
+            <ul className="absolute right-0 mt-3 w-52 bg-base-100 shadow-lg rounded-xl p-2 z-50 space-y-1">
+              <li>
+                <Link
+                  to="/profile"
+                  onClick={() => setOpen(false)}
+                  className="block px-3 py-2 rounded hover:bg-base-200"
+                >
+                  Profile
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/connections"
+                  onClick={() => setOpen(false)}
+                  className="block px-3 py-2 rounded hover:bg-base-200"
+                >
+                  Connections
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/requests"
+                  onClick={() => setOpen(false)}
+                  className="block px-3 py-2 rounded hover:bg-base-200"
+                >
+                  Requests
+                </Link>
+              </li>
+              <li>
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-3 py-2 rounded hover:bg-error hover:text-white transition"
+                >
+                  Logout
+                </button>
+              </li>
+            </ul>
+          )}
         </div>
       </div>
     </div>
