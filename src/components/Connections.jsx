@@ -16,16 +16,32 @@ const Connections = () => {
     (store) => store.connection,
   );
 
-  // ✅ track if we already fetched
   const fetchedRef = useRef(false);
+  const abortControllerRef = useRef(null); // <--- added AbortController
 
   const getConnection = useCallback(async () => {
+    // Abort any previous request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     try {
       dispatch(startLoading());
 
-      const { data } = await axiosInstance.get(`/user/connections`);
+      const { data } = await axiosInstance.get(`/user/connections`, {
+        signal: controller.signal, // <-- pass the signal
+      });
+
       dispatch(addConnection(Array.isArray(data?.data) ? data.data : []));
     } catch (err) {
+      if (err.name === "AbortError") {
+        console.log("Previous request aborted");
+        return; // exit silently if aborted
+      }
+
       console.error(err);
       dispatch(
         setConnectionError("Failed to load connections. Please try again."),
@@ -33,12 +49,18 @@ const Connections = () => {
     }
   }, [dispatch]);
 
-  // ✅ run once on mount
   useEffect(() => {
     if (!fetchedRef.current) {
       fetchedRef.current = true;
       getConnection();
     }
+
+    // Cleanup: abort request on unmount
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, [getConnection]);
 
   const hasConnections = Array.isArray(connection) && connection.length > 0;
