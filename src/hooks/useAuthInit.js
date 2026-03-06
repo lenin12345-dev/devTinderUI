@@ -25,3 +25,40 @@ export default function useAuthInit() {
     return () => (mounted = false);
   }, []);
 }
+/*/ Overall Auth Flow
+App start
+   ↓
+useAuthInit() runs
+   ↓
+GET /profile
+   ↓
+backend reads cookie
+   ↓
+if valid → dispatch(authSuccess(user))
+if invalid → dispatch(authFailure())
+   ↓
+Redux state updated
+   ↓
+ProtectedRoute checks user
+   ↓
+Allow access OR redirect to /auth
+/*/
+/*/Login Flow
+User enters email/password
+        ↓
+POST /login
+        ↓
+Backend sets cookie
+Set-Cookie: token=abc123
+        ↓
+Browser stores cookie
+        ↓
+GET /profile
+        ↓
+Backend reads cookie
+        ↓
+Return user
+        ↓
+dispatch(authSuccess(user))
+        ↓
+navigate("/") 

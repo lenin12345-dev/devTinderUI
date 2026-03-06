@@ -30,7 +30,6 @@ const Login = () => {
     try {
       await axiosInstance.post(`/login`, loginObj);
       const { data } = await axiosInstance.get("/profile");
-      console.log("Login response data:", data);
       dispatch(authSuccess(data.user));
       navigate("/");
 

@@ -7,23 +7,30 @@ const Requests = () => {
   const dispatch = useDispatch();
   const { requests, loading, error } = useSelector((store) => store.requests);
 
-  const fetchRequests = useCallback(async () => {
-    try {
-      dispatch(startLoading());
+  const fetchRequests = useCallback(
+    async (signal) => {
+      try {
+        dispatch(startLoading());
 
-      const { data } = await axiosInstance.get("/user/requests/received");
+        const { data } = await axiosInstance.get("/user/requests/received", {
+          signal,
+        });
 
-      dispatch(addRequests(Array.isArray(data?.data) ? data.data : []));
-    } catch (err) {
-      console.error("Request fetch failed:", err);
-      dispatch(setError("Failed to load requests."));
-    }
-  }, [dispatch]);
+        dispatch(addRequests(Array.isArray(data?.data) ? data.data : []));
+      } catch (err) {
+        if (err.name === "CanceledError" || err.code === "ERR_CANCELED") return;
+
+        console.error("Request fetch failed:", err);
+        dispatch(setError("Failed to load requests."));
+      }
+    },
+    [dispatch],
+  );
+
   const handleReview = async (status, requestId) => {
     try {
       await axiosInstance.post(`/request/review/${status}/${requestId}`);
 
-      // Optimistically remove from UI
       dispatch(addRequests(requests.filter((req) => req._id !== requestId)));
     } catch (err) {
       console.error("Review failed:", err);
@@ -31,7 +38,13 @@ const Requests = () => {
   };
 
   useEffect(() => {
-    fetchRequests();
+    const controller = new AbortController();
+
+    fetchRequests(controller.signal);
+
+    return () => {
+      controller.abort();
+    };
   }, [fetchRequests]);
 
   return (
@@ -47,7 +60,10 @@ const Requests = () => {
       </h2>
 
       {error && !loading && (
-        <button onClick={fetchRequests} className="btn btn-primary mb-6">
+        <button
+          onClick={() => fetchRequests()}
+          className="btn btn-primary mb-6"
+        >
           Retry
         </button>
       )}
