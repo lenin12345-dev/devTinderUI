@@ -1,6 +1,6 @@
 // src/layouts/Body.jsx
-import Navbar from "../src/components/Navbar.jsx";
-import Footer from "../src/components/Footer.jsx";
+import Navbar from "./components/Navbar.js";
+import Footer from "./components/Footer.js";
 import { Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 

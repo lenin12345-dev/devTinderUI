@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { createSocketConnection } from "../utils/socket";
+import { createSocketConnection } from "../utils/socket.js";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import axiosInstance from "../config/axiosConfig";
+import axiosInstance from "../config/axiosConfig.js";
 
 let socket; // ensure socket is reused
 

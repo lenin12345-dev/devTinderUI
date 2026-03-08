@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
-import FullPageLoader from "../components/ui/FullPageLoader";
+import FullPageLoader from "../components/ui/FullPageLoader.jsx";
 
 export default function ProtectedRoute() {
   const { user, loading } = useSelector((state) => state.user);

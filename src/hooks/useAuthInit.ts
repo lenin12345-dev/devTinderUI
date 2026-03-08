@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { authStart, authSuccess, authFailure } from "../utils/userSlice";
-import axiosInstance from "../config/axiosConfig";
+import { authStart, authSuccess, authFailure } from "../utils/userSlice.js";
+import axiosInstance from "../config/axiosConfig.js";
 
 export default function useAuthInit() {
   const dispatch = useDispatch();
@@ -62,3 +62,4 @@ Return user
 dispatch(authSuccess(user))
         ↓
 navigate("/") 
+/*/

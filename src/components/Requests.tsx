@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { startLoading, addRequests, setError } from "../utils/requestSlice";
-import axiosInstance from "../config/axiosConfig";
+import { startLoading, addRequests, setError } from "../utils/requestSlice.js";
+import axiosInstance from "../config/axiosConfig.js";
 
 const Requests = () => {
   const dispatch = useDispatch();
@@ -18,8 +18,7 @@ const Requests = () => {
 
         dispatch(addRequests(Array.isArray(data?.data) ? data.data : []));
       } catch (err) {
-        if (err.name === "CanceledError" || err.code === "ERR_CANCELED") return;
-
+        if (err.name === "CanceledError" || err.name === "AbortError") return;
         console.error("Request fetch failed:", err);
         dispatch(setError("Failed to load requests."));
       }

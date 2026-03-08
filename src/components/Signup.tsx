@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useSelector, useDispatch } from "react-redux";
-import { authSuccess } from "../utils/userSlice";
-import axiosInstance from "../config/axiosConfig";
+import { authSuccess } from "../utils/userSlice.js";
+import axiosInstance from "../config/axiosConfig.js";
 
 const SignUp = () => {
   const [signupObj, setSignupObj] = useState({

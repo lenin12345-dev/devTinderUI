@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { authSuccess } from "../utils/userSlice";
+import { authSuccess } from "../utils/userSlice.js";
 import toast from "react-hot-toast";
-import axiosInstance from "../config/axiosConfig";
+import axiosInstance from "../config/axiosConfig.js";
 
 const Login = () => {
   const [loginObj, setLoginObj] = useState({ emailId: "", password: "" });

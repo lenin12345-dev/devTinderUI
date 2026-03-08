@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import TinderCard from "react-tinder-card";
 import toast from "react-hot-toast";
-import { removeFeedUser, addMatch } from "../utils/feedSlice";
-import axiosInstance from "../config/axiosConfig";
-import { extractImageUrl } from "../utils/imageUtils";
+import { removeFeedUser, addMatch } from "../utils/feedSlice.js";
+import axiosInstance from "../config/axiosConfig.js";
+import { extractImageUrl } from "../utils/imageUtils.js";
 
 const FeedCard = ({ user, isBehind = false, onSwipe }) => {
   const { firstName, lastName, photoUrl, age, _id, skills } = user;

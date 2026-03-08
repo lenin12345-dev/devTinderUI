@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { logout } from "../utils/userSlice";
-import axiosInstance from "../config/axiosConfig";
+import { logout } from "../utils/userSlice.js";
+import axiosInstance from "../config/axiosConfig.js";
 import { useState, useRef, useEffect } from "react";
 
 const Navbar = () => {

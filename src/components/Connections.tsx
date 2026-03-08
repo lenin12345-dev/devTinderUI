@@ -5,9 +5,9 @@ import {
   startLoading,
   addConnection,
   setConnectionError,
-} from "../utils/connectionSlice";
-import axiosInstance from "../config/axiosConfig";
-import { extractImageUrl } from "../utils/imageUtils";
+} from "../utils/connectionSlice.js";
+import axiosInstance from "../config/axiosConfig.js";
+import { extractImageUrl } from "../utils/imageUtils.js";
 import { Link } from "react-router-dom";
 
 const Connections = () => {
@@ -17,31 +17,20 @@ const Connections = () => {
   );
 
   const fetchedRef = useRef(false);
-  const abortControllerRef = useRef(null); // <--- added AbortController
+  const abortRef = useRef(null);
+  let abortController = new AbortController();
 
+  // Fetch connections
   const getConnection = useCallback(async () => {
-    // Abort any previous request
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
-
     try {
       dispatch(startLoading());
-
-      const { data } = await axiosInstance.get(`/user/connections`, {
-        signal: controller.signal, // <-- pass the signal
+      if (abortRef.current) return;
+      abortRef.current = abortController;
+      const { data } = await axiosInstance.get("/user/connections", {
+        signal: abortController.signal,
       });
-
       dispatch(addConnection(Array.isArray(data?.data) ? data.data : []));
     } catch (err) {
-      if (err.name === "AbortError") {
-        console.log("Previous request aborted");
-        return; // exit silently if aborted
-      }
-
       console.error(err);
       dispatch(
         setConnectionError("Failed to load connections. Please try again."),
@@ -50,17 +39,12 @@ const Connections = () => {
   }, [dispatch]);
 
   useEffect(() => {
+    // Fetch fresh data only once per mount
     if (!fetchedRef.current) {
       fetchedRef.current = true;
       getConnection();
     }
-
-    // Cleanup: abort request on unmount
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
+    return () => abortController.abort();
   }, [getConnection]);
 
   const hasConnections = Array.isArray(connection) && connection.length > 0;
@@ -81,7 +65,7 @@ const Connections = () => {
               : "No Connections"}
       </h2>
 
-      {/* Error message + retry */}
+      {/* Error + Retry */}
       {error && !loading && (
         <div className="flex flex-col items-center mb-4">
           <p className="text-red-500 mb-2 text-center">{error}</p>
@@ -117,7 +101,6 @@ const Connections = () => {
                 <h2 className="card-title mb-5 text-center">
                   {each?.firstName} {each?.lastName}
                 </h2>
-
                 <Link
                   to={`/chat/${each._id}`}
                   className="btn btn-accent text-white px-4 py-2 rounded mt-2"

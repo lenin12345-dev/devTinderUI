@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import FeedCard from "./FeedCard";
+import FeedCard from "./FeedCard.js";
 import {
   setFeed,
   addFeed,
@@ -9,9 +9,9 @@ import {
   setHasMore,
   setNextCursor,
   removeFeedUser,
-} from "../utils/feedSlice";
-import axiosInstance from "../config/axiosConfig";
-import SkeletonCard from "./SkeletonCard";
+} from "../utils/feedSlice.js";
+import axiosInstance from "../config/axiosConfig.js";
+import SkeletonCard from "./SkeletonCard.js";
 
 const Feed = () => {
   const dispatch = useDispatch();

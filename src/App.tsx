@@ -1,18 +1,18 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Body from "./Body.jsx";
+import Body from "./Body.js";
 import { Toaster } from "react-hot-toast";
-import ProtectedRoute from "./routes/ProtectedRoute";
+import ProtectedRoute from "./routes/ProtectedRoute.js";
 import { lazy, Suspense } from "react";
 import FullPageLoader from "./components/ui/FullPageLoader.jsx";
 
 // Lazy-loaded pages
-const Feed = lazy(() => import("./components/Feed.jsx"));
-const Profile = lazy(() => import("./components/Profile.jsx"));
-const Chat = lazy(() => import("./components/Chat.jsx"));
-const Connections = lazy(() => import("./components/Connections.jsx"));
-const Requests = lazy(() => import("./components/Requests.jsx"));
-const Authpage = lazy(() => import("./components/Authpage.jsx"));
-import useAuthInit from "../src/hooks/useAuthInit.js";
+const Feed = lazy(() => import("./components/Feed.js"));
+const Profile = lazy(() => import("./components/Profile.js"));
+const Chat = lazy(() => import("./components/Chat.js"));
+const Connections = lazy(() => import("./components/Connections.js"));
+const Requests = lazy(() => import("./components/Requests.js"));
+const Authpage = lazy(() => import("./components/Authpage.js"));
+import useAuthInit from "./hooks/useAuthInit.js";
 
 function App() {
   useAuthInit();

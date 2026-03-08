@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { authSuccess } from "../utils/userSlice";
+import { authSuccess } from "../utils/userSlice.js";
 import { toast } from "react-hot-toast";
-import axiosInstance from "../config/axiosConfig";
-import { extractImageUrl } from "../utils/imageUtils";
+import axiosInstance from "../config/axiosConfig.js";
+import { extractImageUrl } from "../utils/imageUtils.js";
 
 const Profile = () => {
   const { user } = useSelector((state) => state.user);
