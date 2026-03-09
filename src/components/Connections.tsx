@@ -6,18 +6,29 @@ import {
   addConnection,
   setConnectionError,
 } from "../utils/connectionSlice.js";
-import axiosInstance from "../config/axiosConfig.js";
+import axiosInstance from "../config/axiosConfig.ts";
 import { extractImageUrl } from "../utils/imageUtils.js";
 import { Link } from "react-router-dom";
+import type { RootState, AppDispatch } from "../utils/store";
 
-const Connections = () => {
-  const dispatch = useDispatch();
+interface Connection {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  photoUrl?: string | null;
+}
+// React.FC (or React.FunctionComponent) is a generic type provided by React for typing functional components.
+
+const Connections: React.FC = () => {
+  // useDispatch<AppDispatch>() — ensures dispatch knows your slices and thunks types.
+  const dispatch = useDispatch<AppDispatch>();
+  // useSelector((state: RootState) => ...) — Type-safe access to store state.
   const { connection, loading, error } = useSelector(
-    (store) => store.connection,
+    (store: RootState) => store.connection,
   );
 
   const fetchedRef = useRef(false);
-  const abortRef = useRef(null);
+  const abortRef = useRef<AbortController | null>(null);
   let abortController = new AbortController();
 
   // Fetch connections
@@ -26,9 +37,13 @@ const Connections = () => {
       dispatch(startLoading());
       if (abortRef.current) return;
       abortRef.current = abortController;
-      const { data } = await axiosInstance.get("/user/connections", {
-        signal: abortController.signal,
-      });
+      // axiosInstance.get<{ data: Connection[] }>() — tells TS what data the API will return.This prevents mistakes like data.data being undefined or wrong type.
+      const { data } = await axiosInstance.get<{ data: Connection[] }>(
+        "/user/connections",
+        {
+          signal: abortController.signal,
+        },
+      );
       dispatch(addConnection(Array.isArray(data?.data) ? data.data : []));
     } catch (err) {
       console.error(err);

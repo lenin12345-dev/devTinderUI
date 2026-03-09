@@ -1,19 +1,33 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { authSuccess } from "../utils/userSlice.js";
 import toast from "react-hot-toast";
 import axiosInstance from "../config/axiosConfig.js";
+import type { RootState, AppDispatch } from "../utils/store";
 
+interface LoginObj {
+  emailId: string;
+  password: string;
+}
+interface User {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
 const Login = () => {
-  const [loginObj, setLoginObj] = useState({ emailId: "", password: "" });
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
+  const [loginObj, setLoginObj] = useState<LoginObj>({
+    emailId: "",
+    password: "",
+  });
+  const [loading, setLoading] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string>("");
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const user = useSelector((state) => state.user.user);
+  const dispatch = useDispatch<AppDispatch>();
+  const user = useSelector((state: RootState) => state.user.user);
 
-  const handleChange = (event) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setLoginObj({ ...loginObj, [event.target.name]: event.target.value });
   };
 
@@ -29,7 +43,7 @@ const Login = () => {
     setLoading(true);
     try {
       await axiosInstance.post(`/login`, loginObj);
-      const { data } = await axiosInstance.get("/profile");
+      const { data } = await axiosInstance.get<{ user: User }>("/profile");
       dispatch(authSuccess(data.user));
       navigate("/");
 

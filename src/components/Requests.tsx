@@ -1,49 +1,64 @@
 import React, { useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { startLoading, addRequests, setError } from "../utils/requestSlice.js";
-import axiosInstance from "../config/axiosConfig.js";
+import {
+  startLoading,
+  addRequests,
+  setError,
+  removeRequest,
+} from "../utils/requestSlice";
+import axiosInstance from "../config/axiosConfig";
+import type { RootState, AppDispatch } from "../utils/store";
 
-const Requests = () => {
-  const dispatch = useDispatch();
-  const { requests, loading, error } = useSelector((store) => store.requests);
+interface User {
+  firstName: string;
+  lastName: string;
+  photoUrl?: string | null;
+}
 
-  const fetchRequests = useCallback(
-    async (signal) => {
-      try {
-        dispatch(startLoading());
+interface Request {
+  _id: string;
+  fromUserId: User;
+}
 
-        const { data } = await axiosInstance.get("/user/requests/received", {
-          signal,
-        });
-
-        dispatch(addRequests(Array.isArray(data?.data) ? data.data : []));
-      } catch (err) {
-        if (err.name === "CanceledError" || err.name === "AbortError") return;
-        console.error("Request fetch failed:", err);
-        dispatch(setError("Failed to load requests."));
-      }
-    },
-    [dispatch],
+const Requests: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { requests, loading, error } = useSelector(
+    (state: RootState) => state.requests,
   );
 
-  const handleReview = async (status, requestId) => {
+  const fetchRequests = useCallback(async () => {
+    const controller = new AbortController();
+    try {
+      dispatch(startLoading());
+      const { data } = await axiosInstance.get<{ data: Request[] }>(
+        "/user/requests/received",
+        {
+          signal: controller.signal,
+        },
+      );
+      dispatch(addRequests(data.data || []));
+    } catch (err: any) {
+      if (err.name === "CanceledError" || err.name === "AbortError") return;
+      console.error("Request fetch failed:", err);
+      dispatch(setError("Failed to load requests."));
+    }
+    return () => controller.abort();
+  }, [dispatch]);
+
+  const handleReview = async (
+    status: "accepted" | "rejected",
+    requestId: string,
+  ) => {
     try {
       await axiosInstance.post(`/request/review/${status}/${requestId}`);
-
-      dispatch(addRequests(requests.filter((req) => req._id !== requestId)));
+      dispatch(removeRequest(requestId));
     } catch (err) {
       console.error("Review failed:", err);
     }
   };
-
+  // he effect always uses the latest version of fetchRequests
   useEffect(() => {
-    const controller = new AbortController();
-
-    fetchRequests(controller.signal);
-
-    return () => {
-      controller.abort();
-    };
+    fetchRequests();
   }, [fetchRequests]);
 
   return (
@@ -59,10 +74,7 @@ const Requests = () => {
       </h2>
 
       {error && !loading && (
-        <button
-          onClick={() => fetchRequests()}
-          className="btn btn-primary mb-6"
-        >
+        <button onClick={fetchRequests} className="btn btn-primary mb-6">
           Retry
         </button>
       )}
@@ -73,10 +85,7 @@ const Requests = () => {
 
       <div className="flex flex-col gap-6 w-full max-w-md">
         {requests.map((req) => {
-          const user = req?.fromUserId;
-
-          if (!user) return null;
-
+          const user = req.fromUserId;
           return (
             <div
               key={req._id}
@@ -94,7 +103,7 @@ const Requests = () => {
                       }
                       alt="Profile"
                       onError={(e) =>
-                        (e.target.src =
+                        (e.currentTarget.src =
                           "https://via.placeholder.com/150?text=User")
                       }
                       className="object-cover"
@@ -106,7 +115,6 @@ const Requests = () => {
                   <h3 className="font-semibold text-lg">
                     {user.firstName} {user.lastName}
                   </h3>
-
                   <p className="text-sm text-gray-500">
                     Sent you a connection request
                   </p>
@@ -120,7 +128,6 @@ const Requests = () => {
                 >
                   Accept
                 </button>
-
                 <button
                   onClick={() => handleReview("rejected", req._id)}
                   className="btn btn-outline btn-error btn-sm"

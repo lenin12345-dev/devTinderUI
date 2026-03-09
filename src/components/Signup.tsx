@@ -1,28 +1,52 @@
-import React, { useState } from "react";
+// components/SignUp.tsx
+import React, { useState, ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useSelector, useDispatch } from "react-redux";
-import { authSuccess } from "../utils/userSlice.js";
-import axiosInstance from "../config/axiosConfig.js";
+import { authSuccess } from "../utils/userSlice";
+import axiosInstance from "../config/axiosConfig";
+import type { RootState, AppDispatch } from "../utils/store";
 
-const SignUp = () => {
-  const [signupObj, setSignupObj] = useState({
+// 1️⃣ Define interface for signup form state
+interface SignUpObj {
+  firstName: string;
+  lastName: string;
+  emailId: string;
+  password: string;
+}
+
+// 2️⃣ Define user type for Redux store
+interface User {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
+const SignUp: React.FC = () => {
+  const [signupObj, setSignupObj] = useState<SignUpObj>({
     firstName: "",
     lastName: "",
     emailId: "",
     password: "",
   });
-  const dispatch = useDispatch();
-  const [errorMsg, setErrorMsg] = useState("");
-  const [loading, setLoading] = useState(false);
+
+  const [errorMsg, setErrorMsg] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+  const user = useSelector(
+    (state: RootState) => state.user.user as User | null,
+  );
 
-  const handleChange = (event) => {
+  // 3️⃣ Typed input change event
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSignupObj({ ...signupObj, [event.target.name]: event.target.value });
     setErrorMsg("");
   };
 
+  // 4️⃣ Async submit handler with typed API response
   const handleSubmit = async () => {
     const { firstName, lastName, emailId, password } = signupObj;
     if (!firstName || !lastName || !emailId || !password) {
@@ -32,13 +56,18 @@ const SignUp = () => {
 
     setLoading(true);
     try {
-      await axiosInstance.post(`/signup`, signupObj);
-      const { data } = await axiosInstance.get("/profile");
-      dispatch(authSuccess(data.user));
-      navigate("/profile");
+      // Signup API call
+      await axiosInstance.post("/signup", signupObj);
 
+      // Fetch profile after signup
+      const { data } = await axiosInstance.get<{ user: User }>("/profile");
+
+      // Dispatch to Redux store
+      dispatch(authSuccess(data.user));
+
+      navigate("/profile");
       toast.success("Signup successful!");
-    } catch (error) {
+    } catch (error: any) {
       setErrorMsg(
         error.response?.data?.message || "Signup failed. Please try again.",
       );
@@ -64,7 +93,7 @@ const SignUp = () => {
                 type={field.type}
                 name={field.name}
                 placeholder={field.placeholder}
-                value={signupObj[field.name]}
+                value={signupObj[field.name as keyof SignUpObj]}
                 onChange={handleChange}
                 className="input input-bordered w-full"
               />

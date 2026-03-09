@@ -11,21 +11,39 @@ import {
   removeFeedUser,
 } from "../utils/feedSlice.js";
 import axiosInstance from "../config/axiosConfig.js";
-import SkeletonCard from "./SkeletonCard.js";
+import SkeletonCard from "./SkeletonCard.jsx";
+import type { RootState, AppDispatch } from "../utils/store";
 
-const Feed = () => {
-  const dispatch = useDispatch();
+interface User {
+  firstName: string;
+  lastName: string;
+  photoUrl?: string;
+  age?: number;
+  skills?: string[];
+}
+interface FeedResponse {
+  data: User[];
+  hasMore: boolean;
+  nextCursor: string | null;
+}
+
+const Feed: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
 
   const { feed, loading, error, hasMore, nextCursor } = useSelector(
-    (store) => store.feed,
+    (store: RootState) => store.feed,
   );
 
-  const [cards, setCards] = useState([]);
+  const [cards, setCards] = useState<User[]>([]);
 
-  const fetchingRef = useRef(false);
-  const initialLoad = useRef(false);
+  const fetchingRef = useRef<boolean>(false);
+  const initialLoad = useRef<boolean>(false);
 
-  const getFeed = async () => {
+  // The function returns a Promise,But it does not return any value when resolved
+  // If your async function returns data, the type should reflect that.
+  // async function getUsers(): Promise<string[]> {return ["Alice", "Bob"];}
+
+  const getFeed = async (): Promise<void> => {
     if (!hasMore || fetchingRef.current) return;
 
     fetchingRef.current = true;
@@ -36,7 +54,7 @@ const Feed = () => {
         ? `/feed?cursor=${nextCursor}&limit=10`
         : `/feed?limit=10`;
 
-      const { data } = await axiosInstance.get(url);
+      const { data } = await axiosInstance.get<FeedResponse>(url);
 
       if (!nextCursor) {
         dispatch(setFeed(data.data));
