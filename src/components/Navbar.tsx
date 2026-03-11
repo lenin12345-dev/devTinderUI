@@ -1,18 +1,30 @@
 import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { logout } from "../utils/userSlice.js";
-import axiosInstance from "../config/axiosConfig.js";
+import { logout } from "../utils/userSlice";
+import axiosInstance from "../config/axiosConfig";
 import { useState, useRef, useEffect } from "react";
 
-const Navbar = () => {
-  const { user } = useSelector((state) => state.user);
+type User = {
+  firstName: string;
+  photoUrl?: string;
+};
+
+type RootState = {
+  user: {
+    user: User | null;
+  };
+};
+
+const Navbar: React.FC = () => {
+  const { user } = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const [open, setOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  const [open, setOpen] = useState<boolean>(false);
 
-  const handleLogout = async () => {
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  const handleLogout = async (): Promise<void> => {
     try {
       await axiosInstance.post(`/logout`);
       dispatch(logout());
@@ -24,14 +36,20 @@ const Navbar = () => {
 
   // Close on outside click
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent): void => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setOpen(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   return (
@@ -81,6 +99,7 @@ const Navbar = () => {
                   Profile
                 </Link>
               </li>
+
               <li>
                 <Link
                   to="/connections"
@@ -90,6 +109,7 @@ const Navbar = () => {
                   Connections
                 </Link>
               </li>
+
               <li>
                 <Link
                   to="/requests"
@@ -99,6 +119,7 @@ const Navbar = () => {
                   Requests
                 </Link>
               </li>
+
               <li>
                 <button
                   onClick={handleLogout}

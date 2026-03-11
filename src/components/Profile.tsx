@@ -1,15 +1,39 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { authSuccess } from "../utils/userSlice.js";
+import { authSuccess } from "../utils/userSlice";
 import { toast } from "react-hot-toast";
-import axiosInstance from "../config/axiosConfig.js";
-import { extractImageUrl } from "../utils/imageUtils.js";
+import axiosInstance from "../config/axiosConfig";
+import { extractImageUrl } from "../utils/imageUtils";
 
-const Profile = () => {
-  const { user } = useSelector((state) => state.user);
+type User = {
+  firstName: string;
+  lastName: string;
+  age?: number;
+  gender?: string;
+  photoUrl?: string;
+  skills?: string;
+};
+
+type RootState = {
+  user: {
+    user: User | null;
+  };
+};
+
+type EditUser = {
+  firstName: string;
+  lastName: string;
+  age: string;
+  gender: string;
+  photoUrl: string;
+  skills: string;
+};
+
+const Profile: React.FC = () => {
+  const { user } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
 
-  const [editUser, setEditUser] = useState({
+  const [editUser, setEditUser] = useState<EditUser>({
     firstName: "",
     lastName: "",
     age: "",
@@ -23,12 +47,13 @@ const Profile = () => {
       setEditUser({
         firstName: user.firstName || "",
         lastName: user.lastName || "",
-        age: user.age || "",
+        age: user.age ? String(user.age) : "",
         gender: user.gender || "",
         photoUrl: user.photoUrl || "",
         skills: user.skills || "",
       });
     }
+
     return () => {
       setEditUser({
         firstName: "",
@@ -41,42 +66,60 @@ const Profile = () => {
     };
   }, [user]);
 
-  const handleChange = (e) => {
-    setEditUser({ ...editUser, [e.target.name]: e.target.value });
+  const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    const { name, value } = e.target;
+
+    setEditUser((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (): Promise<void> => {
     try {
       const { gender, photoUrl, age } = editUser;
 
-      // Gender validation
       const allowedGenders = ["male", "female"];
+
       if (gender && !allowedGenders.includes(gender.toLowerCase())) {
-        toast.error("Gender must be 'male', 'female' ");
+        toast.error("Gender must be 'male', 'female'");
         return;
       }
 
-      // Photo URL validation (basic)
       if (!photoUrl) {
         toast.error("Add a profile pic");
         return;
       }
 
-      // Age validation
       const ageNum = Number(age);
+
       if (age && (!Number.isInteger(ageNum) || ageNum < 13 || ageNum > 120)) {
-        toast.error("Age must be a valid number between 13 and 120.");
+        toast.error("Age must be between 13 and 120");
         return;
       }
-      const { data } = await axiosInstance.patch(`/profile/edit`, editUser);
+
+      const { data } = await axiosInstance.patch("/profile/edit", editUser);
 
       dispatch(authSuccess(data.data));
 
       toast.success("Profile updated successfully");
-    } catch (error) {
+    } catch (error: any) {
       toast.error(error.message || "Failed to update");
     }
   };
+
+  const fields: {
+    name: keyof EditUser;
+    label: string;
+    type: string;
+  }[] = [
+    { name: "firstName", label: "First Name", type: "text" },
+    { name: "lastName", label: "Last Name", type: "text" },
+    { name: "age", label: "Age", type: "number" },
+    { name: "gender", label: "Gender", type: "text" },
+    { name: "photoUrl", label: "Photo URL", type: "text" },
+    { name: "skills", label: "Skills (comma separated)", type: "text" },
+  ];
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -91,28 +134,23 @@ const Profile = () => {
             alt="Profile"
             className="w-40 h-40 rounded-full object-cover"
           />
+
           <h2 className="text-xl font-semibold mb-4">Edit Your Profile</h2>
         </div>
 
         <form
-          onSubmit={(e) => {
+          onSubmit={(e: FormEvent<HTMLFormElement>) => {
             e.preventDefault();
             handleSubmit();
           }}
           className="flex flex-col space-y-3"
         >
-          {[
-            { name: "firstName", label: "First Name", type: "text" },
-            { name: "lastName", label: "Last Name", type: "text" },
-            { name: "age", label: "Age", type: "number" },
-            { name: "gender", label: "Gender", type: "text" },
-            { name: "photoUrl", label: "Photo URL", type: "text" },
-            { name: "skills", label: "Skills (comma separated)", type: "text" },
-          ].map((field) => (
+          {fields.map((field) => (
             <div key={field.name} className="flex flex-col space-y-1">
               <label htmlFor={field.name} className="font-medium text-sm">
                 {field.label}
               </label>
+
               <input
                 id={field.name}
                 name={field.name}
