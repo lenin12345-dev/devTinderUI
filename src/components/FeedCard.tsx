@@ -6,49 +6,79 @@ import { removeFeedUser, addMatch } from "../utils/feedSlice.js";
 import axiosInstance from "../config/axiosConfig.js";
 import { extractImageUrl } from "../utils/imageUtils.js";
 
-const FeedCard = ({ user, isBehind = false, onSwipe }) => {
-  const { firstName, lastName, photoUrl, age, _id, skills } = user;
+interface UserType {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  photoUrl?: string;
+  age?: number;
+  skills?: string[];
+}
+
+interface FeedCardProps {
+  user: UserType;
+  isBehind?: boolean;
+  onSwipe?: (dir: "left" | "right") => void;
+}
+
+const FeedCard: React.FC<FeedCardProps> = ({ user, isBehind = false }) => {
   const dispatch = useDispatch();
   const [isProcessing, setIsProcessing] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
 
   const handleImageError = () => {
-    console.error("Image failed to load:", extractImageUrl(photoUrl));
+    console.error("Image failed to load:", extractImageUrl(user.photoUrl));
     setImageFailed(true);
   };
 
-  const handleSwipe = async (dir) => {
+  const handleSwipe = async (dir: "left" | "right") => {
     const action = dir === "right" ? "like" : "dislike";
     setIsProcessing(true);
 
-    // Optimistic removal
-    dispatch(removeFeedUser(_id));
+    // Optimistic removal from feed
+    dispatch(removeFeedUser(user?._id));
 
     try {
-      await axiosInstance.post(`/swipe/${_id}/${action}`);
+      // 1️⃣ Record swipe in Swipe model
+      await axiosInstance.post(`/swipe/${user._id}/${action}`);
 
+      // 2️⃣ If right-swipe, also send a connection request
       if (action === "like") {
-        const { data } = await axiosInstance.get(`/match/${_id}`);
+        try {
+          await axiosInstance.post(`/request/send/interested/${user._id}`);
+        } catch (err: any) {
+          console.warn(
+            "Request creation failed (may already exist):",
+            err.response?.data?.message || err.message,
+          );
+        }
+
+        // 3️⃣ Check for mutual match
+        const { data } = await axiosInstance.get(`/match/${user._id}`);
         if (data.isMatch) {
           dispatch(addMatch(user));
-          toast.success(`🎉 You matched with ${firstName}!`);
+          toast.success(`🎉 You matched with ${user.firstName}!`);
         } else {
-          toast.success(`❤️ Liked ${firstName}`);
+          toast.success(`❤️ Liked ${user.firstName}`);
         }
       } else {
         toast("👎 Passed on this profile");
       }
-    } catch (err) {
+    } catch (err: any) {
       toast.error(err.response?.data?.message || "Action failed!");
-      // rollback
-      // Optionally, re-add user to feed
+      // Optionally, rollback removal from feed
+      // dispatch(addFeedUser(user));
     } finally {
       setIsProcessing(false);
     }
   };
 
   return (
-    <TinderCard key={_id} onSwipe={handleSwipe} preventSwipe={["up", "down"]}>
+    <TinderCard
+      key={user._id}
+      onSwipe={handleSwipe}
+      preventSwipe={["up", "down"]}
+    >
       <div
         className={`card bg-base-100 w-80 sm:w-96 shadow-xl transition-all duration-300 ${
           isBehind
@@ -58,24 +88,19 @@ const FeedCard = ({ user, isBehind = false, onSwipe }) => {
       >
         <figure className="px-6 pt-6">
           <img
-            src={extractImageUrl(photoUrl)}
-            alt={`${firstName} ${lastName}`}
+            src={extractImageUrl(user.photoUrl)}
+            alt={`${user.firstName} ${user.lastName}`}
             className="rounded-xl h-72 w-full object-cover"
             onError={handleImageError}
-            onLoad={() =>
-              console.log(
-                "Image loaded successfully:",
-                extractImageUrl(photoUrl),
-              )
-            }
           />
         </figure>
+
         <div className="card-body items-center text-center">
           <h2 className="card-title text-lg font-semibold">
-            {firstName} {lastName}, {age}
+            {user.firstName} {user.lastName}, {user.age}
           </h2>
           <div className="flex flex-wrap justify-center gap-2 mt-2">
-            {skills?.map((skill) => (
+            {user.skills?.map((skill) => (
               <span key={skill} className="badge badge-outline">
                 {skill}
               </span>
