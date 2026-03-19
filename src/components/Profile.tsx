@@ -3,7 +3,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { authSuccess } from "../utils/userSlice";
 import { toast } from "react-hot-toast";
 import axiosInstance from "../config/axiosConfig";
-import { extractImageUrl } from "../utils/imageUtils";
 
 type User = {
   firstName: string;

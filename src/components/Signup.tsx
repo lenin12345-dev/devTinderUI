@@ -7,7 +7,6 @@ import { authSuccess } from "../utils/userSlice";
 import axiosInstance from "../config/axiosConfig";
 import type { RootState, AppDispatch } from "../utils/store";
 
-// 1️⃣ Define interface for signup form state
 interface SignUpObj {
   firstName: string;
   lastName: string;
@@ -15,7 +14,6 @@ interface SignUpObj {
   password: string;
 }
 
-// 2️⃣ Define user type for Redux store
 interface User {
   _id: string;
   firstName: string;
@@ -56,13 +54,10 @@ const SignUp: React.FC = () => {
 
     setLoading(true);
     try {
-      // Signup API call
       await axiosInstance.post("/signup", signupObj);
 
-      // Fetch profile after signup
       const { data } = await axiosInstance.get<{ user: User }>("/profile");
 
-      // Dispatch to Redux store
       dispatch(authSuccess(data.user));
 
       navigate("/profile");

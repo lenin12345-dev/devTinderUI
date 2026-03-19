@@ -73,7 +73,6 @@ const Feed: React.FC = () => {
     }
   };
 
-  // Initial Load
   useEffect(() => {
     if (initialLoad.current) return;
     initialLoad.current = true;

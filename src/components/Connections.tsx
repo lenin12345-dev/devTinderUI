@@ -57,14 +57,12 @@ const Connections: React.FC = () => {
         </div>
       )}
 
-      {/* Empty */}
       {!isLoading && !hasConnections && !isError && (
         <p className="text-center text-lg opacity-70">
           You don’t have any connections yet.
         </p>
       )}
 
-      {/* List */}
       <div className="flex flex-col items-center">
         {connections.map((user) => (
           <div
